@@ -9,7 +9,8 @@
 
 </div>
 
-> ⚠️ **重要提示**：部署前请仔细阅读 **[数据库导入说明](#⭐-重要数据库导入说明)**，这是项目部署的关键步骤！  
+> ⚠️ **部署步骤**：  
+> 1. 📦 **拉取 Docker 镜像 / 启动 Docker** → 2. ⭐ **导入数据库** → 3. 🎉 **访问系统**  
 > ⚠️ **脚本使用**：所有 PowerShell 脚本使用前必须修改路径，详见 **[脚本路径修改](#📝-快速参考脚本路径修改)**
 
 ---
@@ -44,64 +45,118 @@
 在开始部署前，请确保完成以下准备工作：
 
 - [ ] **Docker 环境**：已安装 Docker 和 Docker Compose
-- [ ] **SQL 文件**：已准备好数据库备份文件
+- [ ] **SQL 文件**：已下载数据库备份文件（通过百度网盘）
 - [ ] **存储空间**：至少 25GB 可用空间（用于数据库和文件）
 - [ ] **内存要求**：Docker 至少分配 4GB 内存
 - [ ] **路径修改**：已修改 `import-sql.ps1` 中的 SQL 路径
 - [ ] **字体文件**（可选）：已下载并放入 `app/file/` 目录
 
-**部署流程：**
-1. 导入数据库 → 2. 启动应用 → 3. 访问系统
+### 📦 步骤一：拉取 Docker 镜像
+
+**这是第一步！**必须先拉取镜像或使用 Docker Compose 启动，因为数据库在 Docker 中。
+
+#### 方式一：拉取预构建镜像（可选）
+
+如果你想使用预构建的镜像：
+
+```bash
+# 开发版（包含完整爬虫和翻译功能）
+docker pull mattgideon/freenovel:v1.0.17-dev
+
+# 或生产版（轻量级）
+docker pull mattgideon/freenovel:v1.0.16-prod
+```
+
+#### 方式二：直接使用 Docker Compose（推荐）
+
+不需要手动拉取镜像，Docker Compose 会自动处理。
+
+**1. 创建必要目录**
+
+```bash
+mkdir -p app/tmp app/file app/logs
+```
+
+**2. 准备 SQL 文件**
+
+从百度网盘下载 SQL 文件：
+```
+链接: https://pan.baidu.com/s/1SveAZ9NqvQSBXuk01xnvPw?pwd=cf44 
+提取码: cf44
+```
+
+将文件放到一个目录，例如 `D:/data/sql/`
+
+**3. 修改导入脚本路径**
+
+打开 `import-sql.ps1`，修改第 9-11 行：
+
+```powershell
+$sqlPath = "D:/data/sql"                    # 改为你的 SQL 文件夹路径
+$expandTablePath = "D:/data/sql/扩容表.sql"  # 扩容表路径
+$mainTablePath = "D:/data/sql/主表.sql"      # 主表路径
+```
+
+⚠️ **建议使用全英文路径**，避免中文编码问题
 
 ---
 
-### ⭐ 重要：数据库导入说明
+### 💾 步骤二：启动 Docker 服务
+
+**必须先启动 Docker 容器，因为数据库在 Docker 中配置！**
+
+#### 使用 start.ps1 一键启动（推荐）
+
+项目提供了 `start.ps1` 脚本自动处理所有启动步骤：
+
+```powershell
+# Windows 下右键点击 start.ps1 → “使用 PowerShell 运行”
+# 或在 PowerShell 中执行：
+.\start.ps1
+```
+
+脚本会自动：
+1. 检查 Docker 是否运行
+2. 选择部署模式（本地数据库/外部数据库）
+3. 启动 MariaDB 数据库容器
+4. 等待数据库初始化
+5. 启动应用容器
+
+#### 或手动启动
+
+选择合适的 docker-compose 文件：
+
+```bash
+# 本地单数据库模式（推荐新手使用）
+docker-compose -f docker-compose.local-single.yml up -d
+
+# 或本地双数据库模式（读写分离）
+docker-compose -f docker-compose.local-dual.yml up -d
+
+# 或外部数据库模式（需要配置 .env）
+docker-compose -f docker-compose.external-single.yml up -d
+```
+
+等待 15-30 秒让数据库完全启动。
+
+检查服务状态：
+```bash
+docker ps
+```
+
+应该看到 `novel-mariadb` 容器正在运行。
+
+---
+
+### ⭐ 步骤三：导入数据库
+
+**现在数据库容器已经运行，可以导入 SQL 数据了！**
 
 **这是项目部署的关键步骤！** 由于项目使用了大量现有数据，需要导入 SQL 文件到数据库。
 
 #### 方式一：使用一键导入脚本（推荐）
 
-项目提供了 PowerShell 脚本自动导入：
-
-**1. 准备 SQL 文件**
-
-将你的 SQL 备份文件放到一个目录中，例如：
-```
-D:/data/sql/
-  ├── credential.sql
-  ├── dictionary.sql
-  ├── user.sql
-  ├── invitation_code.sql
-  ├── 扩容表.sql          # 约 360MB
-  └── 主表.sql            # 约 20GB
-```
-
-**2. 修改脚本路径**
-
-打开 `import-sql.ps1`，修改第 9-11 行的路径：
-
-```powershell
-# 修改为你的实际路径（建议使用英文路径）
-$sqlPath = "D:/data/sql"                    # SQL 文件夹路径
-$expandTablePath = "D:/data/sql/扩容表.sql"  # 扩容表路径
-$mainTablePath = "D:/data/sql/主表.sql"      # 主表路径
-```
-
-**⚠️ 注意：**
-- 使用正斜杠 `/` 或双反斜杠 `\\`
-- **强烈建议使用全英文路径**，避免中文编码问题
-- 确保路径存在且文件完整
-
-**3. 启动数据库容器**
-
-```bash
-# 启动 MariaDB 容器
-docker-compose -f docker-compose.local-single.yml up -d mariadb
-
-# 等待 15 秒让数据库完全启动
-```
-
-**4. 运行导入脚本**
+运行导入脚本：
 
 ```powershell
 # Windows 下右键点击 import-sql.ps1 → “使用 PowerShell 运行”
@@ -113,21 +168,21 @@ docker-compose -f docker-compose.local-single.yml up -d mariadb
 1. 检查 Docker 和 MariaDB 是否运行
 2. 导入小表（credential, dictionary, user, invitation_code）
 3. 导入扩容表（约 360MB）
-4. 提示是否导入主表（约 20GB，需要 30-60 分钟）
+4. 提示是否导入主表（约 20GB，需要 4 小时左右）
 
 **导入时间预估：**
 - 小表：1-2 分钟
 - 扩容表：3-5 分钟
-- 主表：30-60 分钟（取决于硬盘速度）
+- 主表：4 小时左右（取决于硬盘速度）
 
 ---
 
 #### 方式二：手动导入
 
-**1. 启动数据库**
+**1. 确认数据库已启动**
 
 ```bash
-docker-compose -f docker-compose.local-single.yml up -d mariadb
+docker ps | grep novel-mariadb
 ```
 
 **2. 导入小表**
@@ -209,9 +264,31 @@ exit;
 
 ---
 
-### 方式一：Docker 部署（推荐）
+### 🎉 步骤四：访问系统
 
-#### 1. 拉取镜像
+导入数据库后，系统就可以使用了！
+
+**访问地址：**
+- 前端页面：`http://localhost:8080`
+- 后端 API：`http://localhost:8081`
+
+**默认账号：**
+- 管理员：通过数据库导入的用户账号
+
+---
+
+## 📖 Docker 部署模式详解
+
+项目提供了 4 种 Docker Compose 配置文件，适合不同场景：
+
+| 配置文件 | 说明 | 适用场景 |
+|---------|------|----------|
+| `docker-compose.local-single.yml` | 本地单数据库 | 测试、开发环境（推荐新手） |
+| `docker-compose.local-dual.yml` | 本地双数据库（读写分离） | 性能测试 |
+| `docker-compose.external-single.yml` | 外部单数据库 | 使用云数据库 |
+| `docker-compose.external-dual.yml` | 外部双数据库 | 生产环境（读写分离） |
+
+### 镜像版本
 
 **开发版** (包含完整爬虫和翻译功能)：
 ```bash
@@ -223,31 +300,7 @@ docker pull mattgideon/freenovel:v1.0.17-dev
 docker pull mattgideon/freenovel:v1.0.16-prod
 ```
 
-#### 2. 选择部署配置
-
-项目提供多种 Docker Compose 配置文件：
-
-| 配置文件 | 说明 | 适用场景 |
-|---------|------|----------|
-| `docker-compose.local-single.yml` | 本地单数据库 | 测试、开发环境 |
-| `docker-compose.local-dual.yml` | 本地双数据库（读写分离） | 性能测试 |
-| `docker-compose.external-single.yml` | 外部单数据库 | 使用云数据库 |
-| `docker-compose.external-dual.yml` | 外部双数据库 | 生产环境（读写分离） |
-
-#### 3. 准备必要文件
-
-**创建目录**：
-```bash
-mkdir -p app/tmp app/file app/logs
-```
-
-**下载字体文件**（可选，用于字体混淆防爬）：
-- 阿里云盘：https://www.alipan.com/s/7tTHzoLf7Yf
-- 提取码：`qh59`
-- 文件：`NotoSansKR-VariableFont_wght.ttf`、`obfuscatedNotoSansKR2.ttf`
-- 放置到：`app/file/` 目录
-
-#### 4. 配置环境变量
+### 环境配置（可选）
 
 复制示例配置：
 ```bash
@@ -279,43 +332,7 @@ CLOUDFLARE_R2_ENABLED=false          # 是否使用 R2 存储
 PROXY_CLIENT=false                   # 是否启用代理
 ```
 
-#### 5. 启动服务
-
-**本地单数据库模式**：
-```bash
-docker-compose -f docker-compose.local-single.yml up -d
-```
-
-**本地双数据库模式**：
-```bash
-docker-compose -f docker-compose.local-dual.yml up -d
-```
-
-**外部数据库模式**：
-```bash
-docker-compose -f docker-compose.external-single.yml up -d
-```
-
-#### 6. 获取初始账号
-
-首次启动时，系统会自动创建管理员账户。查看日志获取账号信息：
-
-```bash
-docker logs novel-app | grep "默认用户"
-```
-
-输出示例：
-```
-成功创建默认用户!
-用户名: admin@novel.com
-密码: FATVwtgY77xv
-初始积分: 10000
-请务必保存此密码，并在首次登录后立即修改！
-```
-
-#### 7. 访问应用
-
-打开浏览器访问：`http://localhost:8081`
+**注意**：使用 `start.ps1` 脚本启动时，会使用默认配置，无需修改 `.env`。
 
 ---
 
@@ -689,44 +706,3 @@ FreeNovel/
 ├── docker-compose*.yml      # Docker 配置
 └── Dockerfile*              # Docker 镜像
 ```
-
----
-
-## 🤝 贡献
-
-欢迎提交 Issue 和 Pull Request！
-
-### 贡献指南
-
-1. Fork 本仓库
-2. 创建特性分支：`git checkout -b feature/your-feature`
-3. 提交更改：`git commit -m 'Add some feature'`
-4. 推送分支：`git push origin feature/your-feature`
-5. 提交 Pull Request
-
----
-
-## 📄 许可证
-
-本项目采用 [MIT License](LICENSE)。
-
----
-
-## ⚠️ 免责声明
-
-本项目仅供学习交流使用。使用本项目爬取网站内容时，请遵守目标网站的 robots.txt 和使用条款。
-
----
-
-## 💖 致谢
-
-- 原项目：[ygfhgf213/novel](https://github.com/ygfhgf213/novel)
-- 感谢所有贡献者
-
----
-
-<div align="center">
-
-**如果这个项目对你有帮助，请给个 ⭐ Star 支持一下！**
-
-</div>
