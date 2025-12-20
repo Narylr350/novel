@@ -44,12 +44,88 @@
 
 在开始部署前，请确保完成以下准备工作：
 
-- [ ] **Docker 环境**：已安装 Docker 和 Docker Compose
-- [ ] **SQL 文件**：已下载数据库备份文件（通过百度网盘）
-- [ ] **存储空间**：至少 25GB 可用空间（用于数据库和文件）
-- [ ] **内存要求**：Docker 至少分配 4GB 内存
+#### 必需环境
+- [ ] **Docker 环境**：已安装 Docker Desktop 并启动
+  - Windows: Docker Desktop for Windows
+  - 版本要求：20.10+
+  - 内存分配：建议至少 4GB
+  - **网络环境**：需要能访问 Docker Hub（拉取镜像时）
+  
+- [ ] **存储空间**：至少 25GB 可用空间
+  - 数据库文件：约 20GB
+  - Docker 镜像：约 2-3GB
+  - 应用文件和日志：约 2GB
+
+#### SQL 数据文件
+- [ ] **SQL 文件**：已从百度网盘下载数据库备份文件
+  - 链接：https://pan.baidu.com/s/1SveAZ9NqvQSBXuk01xnvPw?pwd=cf44
+  - 提取码：cf44
+  - 文件列表：
+    - `credential.sql`（小）
+    - `dictionary.sql`（小）
+    - `user.sql`（小）
+    - `invitation_code.sql`（小）
+    - `扩容表.sql`（约 360MB）
+    - `主表.sql`（约 20GB）
+  
 - [ ] **路径修改**：已修改 `import-sql.ps1` 中的 SQL 路径
-- [ ] **字体文件**（可选）：已下载并放入 `app/file/` 目录
+  - **重要**：建议使用全英文路径，避免中文编码问题
+  - 示例：`D:/data/sql/` 而非 `D:/数据/sql/`
+
+#### PowerShell 脚本准备
+- [ ] **执行策略**：确保 PowerShell 可以运行脚本
+  - 如遇到 "无法加载，未对文件进行数字签名" 错误
+  - 解决方法：以管理员身份运行 PowerShell，执行：
+    ```powershell
+    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+    ```
+  
+- [ ] **路径修改**：已根据实际情况修改脚本路径
+  - `import-sql.ps1`：第 9-11 行（SQL 文件路径）
+  - `start-local.ps1`：第 58, 76 行（项目路径）
+
+#### 可选配置
+- [ ] **字体文件**（可选，用于字体混淆防爬）
+  - 项目已自带字体文件在 `app/file/` 目录
+  - 无需额外下载
+
+#### 网络要求
+- [ ] **Docker Hub 访问**：确保能访问 Docker Hub
+  - 首次运行会自动拉取镜像（约 2-3GB）
+  - 如网络较慢，可能需要等待 10-30 分钟
+  - 如无法访问 Docker Hub，需配置镜像加速器：
+    ```json
+    // Docker Desktop -> Settings -> Docker Engine
+    {
+      "registry-mirrors": [
+        "https://mirror.ccs.tencentyun.com",
+        "https://docker.mirrors.ustc.edu.cn"
+      ]
+    }
+    ```
+
+#### 常见预检问题
+
+**Q1: PowerShell 脚本无法运行？**
+```powershell
+# 错误：无法加载，未对文件进行数字签名
+# 解决：以管理员运行 PowerShell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+**Q2: Docker Desktop 未启动？**
+- 打开 Docker Desktop 应用
+- 等待底部状态显示 "Docker Desktop is running"
+- 在终端运行 `docker ps` 验证
+
+**Q3: 端口 3306 被占用？**
+- 本地 MySQL 服务可能正在运行
+- `start.ps1` 会自动检测并提示是否停止
+- 或手动停止：`net stop MySQL80`
+
+**Q4: 磁盘空间不足？**
+- 检查可用空间：至少需要 25GB
+- 清理 Docker 无用镜像：`docker system prune -a`
 
 ### 📦 步骤一：拉取 Docker 镜像
 
@@ -625,6 +701,60 @@ $sqlPath = "D:\数据\文件"              # 中文路径（可能有编码问�
 - 使用全英文路径
 - 避免路径中包含空格
 - 修改后保存文件
+
+---
+
+### Q: PowerShell 脚本无法运行？
+
+**A**: 
+
+**问题 1：无法加载，未对文件进行数字签名**
+```powershell
+# 以管理员身份运行 PowerShell，执行：
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+**问题 2：双击 .ps1 文件无反应**
+- 右键 .ps1 文件 → 选择 "使用 PowerShell 运行"
+- 或在 PowerShell 中运行：`.\start.ps1`
+
+**问题 3：路径不存在错误**
+- 检查脚本中的路径是否修改为你的实际路径
+- 使用双反斜杠 `\\` 或正斜杠 `/`，不要用单反斜杠 `\`
+- 避免使用中文路径
+
+**问题 4：权限不足**
+- 右键 PowerShell → "以管理员身份运行"
+
+---
+
+### Q: Docker 拉取镜像失败？
+
+**A**: 
+
+**问题 1：网络连接超时**
+- 检查网络连接，确保能访问 Docker Hub
+- 配置 Docker 镜像加速器：
+  ```json
+  // Docker Desktop -> Settings -> Docker Engine
+  {
+    "registry-mirrors": [
+      "https://mirror.ccs.tencentyun.com",
+      "https://docker.mirrors.ustc.edu.cn",
+      "https://dockerhub.azk8s.cn"
+    ]
+  }
+  ```
+- 保存后重启 Docker Desktop
+
+**问题 2：磁盘空间不足**
+- 检查可用空间：镜像约 2-3GB
+- 清理无用镜像：`docker system prune -a`
+- 清理无用卷：`docker volume prune`
+
+**问题 3：镜像版本不存在**
+- 检查 `docker-compose.yml` 中的镜像名称
+- 手动拉取：`docker pull mattgideon/freenovel:v1.0.17-dev`
 
 ---
 

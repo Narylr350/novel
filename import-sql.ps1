@@ -6,9 +6,9 @@ Write-Host "  FreeNovel Database Import" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
-$sqlPath = "D:\Narylr\学习资料\sql"
-$expandTablePath = "D:\Narylr\学习资料\sql\扩容表.sql"
-$mainTablePath = "D:\Narylr\学习资料\sql\主表.sql"
+$sqlPath = "D:\Narylr\sql"
+$expandTablePath = "D:\Narylr\sql\扩容表.sql"
+$mainTablePath = "D:\Narylr\sql\主表.sql"
 
 Write-Host "SQL Path: $sqlPath" -ForegroundColor Gray
 
