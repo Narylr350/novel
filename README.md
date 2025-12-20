@@ -67,6 +67,7 @@
     - `invitation_code.sql`（小）
     - `扩容表.sql`（约 360MB）
     - `主表.sql`（约 20GB）
+#### 建议将扩容表和主表重命名成英文名以防止路径问题
   
 - [ ] **路径修改**：已修改 `import-sql.ps1` 中的 SQL 路径
   - **重要**：建议使用全英文路径，避免中文编码问题
@@ -119,7 +120,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 ### 📦 步骤一：拉取 Docker 镜像
 
-**这是第一步！**必须先拉取镜像或使用 Docker Compose 启动，因为数据库在 Docker 中。
+这是第一步！必须先拉取镜像或使用 Docker Compose 启动，因为数据库在 Docker 中。
 
 #### 方式一：拉取预构建镜像（可选）
 
