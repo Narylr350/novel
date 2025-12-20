@@ -348,12 +348,12 @@ exit;
 
 项目提供了 4 种 Docker Compose 配置文件，适合不同场景：
 
-| 配置文件 | 说明 | 适用场景 |
-|---------|------|----------|
-| `docker-compose.local-single.yml` | 本地单数据库 | 测试、开发环境（推荐新手） |
-| `docker-compose.local-dual.yml` | 本地双数据库（读写分离） | 性能测试 |
-| `docker-compose.external-single.yml` | 外部单数据库 | 使用云数据库 |
-| `docker-compose.external-dual.yml` | 外部双数据库 | 生产环境（读写分离） |
+| 配置文件                                 | 说明           | 适用场景          |
+|--------------------------------------|--------------|---------------|
+| `docker-compose.local-single.yml`    | 本地单数据库       | 测试、开发环境（推荐新手） |
+| `docker-compose.local-dual.yml`      | 本地双数据库（读写分离） | 性能测试          |
+| `docker-compose.external-single.yml` | 外部单数据库       | 使用云数据库        |
+| `docker-compose.external-dual.yml`   | 外部双数据库       | 生产环境（读写分离）    |
 
 ### 镜像版本
 
@@ -453,28 +453,28 @@ PROXY_CLIENT=false                   # 是否启用代理
 
 ### 环境变量列表
 
-| 变量名 | 说明 | 默认值 |
-|--------|------|--------|
-| **应用配置** | | |
-| `SERVER_PORT` | 应用服务端口 | 8081 |
-| `DATABASE_MODE` | 数据库模式 (single/dual) | single |
-| `FILE_UPLOAD_STORAGE_DIR` | 文件存储目录 | /app/file/ |
-| **数据库配置** | | |
-| `MYSQL_PRIMARY_PASSWORD` | 本地主数据库密码 | novel_password |
-| `PRIMARY_DB_URL` | 外部主数据库连接 | - |
-| `PRIMARY_DB_USERNAME` | 外部主数据库用户名 | - |
-| `PRIMARY_DB_PASSWORD` | 外部主数据库密码 | - |
-| `PRIMARY_DB_POOL_SIZE` | 主数据库连接池大小 | 15 |
-| **定时任务配置** | | |
-| `TASK_SCHEDULER_ENABLED` | 启用任务调度器 | true |
-| `TASK_NOVELPIA_TASK2_ENABLED` | 启用翻译任务 | true |
-| `TASK_NOVELPIA_TASK3_ENABLED` | 启用下载任务 | true |
-| `TASK_NOVELPIA_PHOTO_ENABLED` | 启用图片下载 | true |
-| `TASK_SITEMAP_HTML_GENERATOR_ENABLED` | 生成 SEO 静态页 | false |
-| **其他配置** | | |
-| `CLOUDFLARE_R2_ENABLED` | 启用 R2 云存储 | false |
-| `PROXY_CLIENT` | 启用代理 | false |
-| `SITEMAP_RUN` | 生成站点地图 | false |
+| 变量名                                   | 说明                  | 默认值            |
+|---------------------------------------|---------------------|----------------|
+| **应用配置**                              |                     |                |
+| `SERVER_PORT`                         | 应用服务端口              | 8081           |
+| `DATABASE_MODE`                       | 数据库模式 (single/dual) | single         |
+| `FILE_UPLOAD_STORAGE_DIR`             | 文件存储目录              | /app/file/     |
+| **数据库配置**                             |                     |                |
+| `MYSQL_PRIMARY_PASSWORD`              | 本地主数据库密码            | novel_password |
+| `PRIMARY_DB_URL`                      | 外部主数据库连接            | -              |
+| `PRIMARY_DB_USERNAME`                 | 外部主数据库用户名           | -              |
+| `PRIMARY_DB_PASSWORD`                 | 外部主数据库密码            | -              |
+| `PRIMARY_DB_POOL_SIZE`                | 主数据库连接池大小           | 15             |
+| **定时任务配置**                            |                     |                |
+| `TASK_SCHEDULER_ENABLED`              | 启用任务调度器             | true           |
+| `TASK_NOVELPIA_TASK2_ENABLED`         | 启用翻译任务              | true           |
+| `TASK_NOVELPIA_TASK3_ENABLED`         | 启用下载任务              | true           |
+| `TASK_NOVELPIA_PHOTO_ENABLED`         | 启用图片下载              | true           |
+| `TASK_SITEMAP_HTML_GENERATOR_ENABLED` | 生成 SEO 静态页          | false          |
+| **其他配置**                              |                     |                |
+| `CLOUDFLARE_R2_ENABLED`               | 启用 R2 云存储           | false          |
+| `PROXY_CLIENT`                        | 启用代理                | false          |
+| `SITEMAP_RUN`                         | 生成站点地图              | false          |
 
 ### 外部数据库配置示例
 
@@ -670,12 +670,12 @@ npm run build
 
 项目提供了多个 PowerShell 脚本，**使用前必须修改路径**：
 
-| 脚本文件 | 需要修改的路径 | 行号 | 说明 |
-|----------|----------------|------|------|
-| `import-sql.ps1` | `$sqlPath`<br>`$expandTablePath`<br>`$mainTablePath` | 9-11 | SQL 文件夹路径 |
-| `start-local.ps1` | `$backendPath`<br>`$frontendPath` | 58, 76 | 项目路径 |
-| `start.ps1` | 无需修改 | - | Docker 启动脚本 |
-| `check-database.ps1` | 无需修改 | - | 数据库检查脚本 |
+| 脚本文件                 | 需要修改的路径                                              | 行号     | 说明          |
+|----------------------|------------------------------------------------------|--------|-------------|
+| `import-sql.ps1`     | `$sqlPath`<br>`$expandTablePath`<br>`$mainTablePath` | 9-11   | SQL 文件夹路径   |
+| `start-local.ps1`    | `$backendPath`<br>`$frontendPath`                    | 58, 76 | 项目路径        |
+| `start.ps1`          | 无需修改                                                 | -      | Docker 启动脚本 |
+| `check-database.ps1` | 无需修改                                                 | -      | 数据库检查脚本     |
 
 **路径修改规则：**
 ```powershell
@@ -725,17 +725,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 **问题 1：网络连接超时**
 - 检查网络连接，确保能访问 Docker Hub
-- 配置 Docker 镜像加速器：
-  ```json
-  // Docker Desktop -> Settings -> Docker Engine
-  {
-    "registry-mirrors": [
-      "https://mirror.ccs.tencentyun.com",
-      "https://docker.mirrors.ustc.edu.cn",
-      "https://dockerhub.azk8s.cn"
-    ]
-  }
-  ```
+- 配置 Docker 镜像源：网上找教程
 - 保存后重启 Docker Desktop
 
 **问题 2：磁盘空间不足**
