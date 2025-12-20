@@ -93,16 +93,6 @@
 - [ ] **Docker Hub 访问**：确保能访问 Docker Hub
   - 首次运行会自动拉取镜像（约 2-3GB）
   - 如网络较慢，可能需要等待 10-30 分钟
-  - 如无法访问 Docker Hub，需配置镜像加速器：
-    ```json
-    // Docker Desktop -> Settings -> Docker Engine
-    {
-      "registry-mirrors": [
-        "https://mirror.ccs.tencentyun.com",
-        "https://docker.mirrors.ustc.edu.cn"
-      ]
-    }
-    ```
 
 #### 常见预检问题
 
