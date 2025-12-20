@@ -10,6 +10,7 @@ import com.wtl.novel.scalingUp.repository.ChapterScalingUpOneRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,8 +35,16 @@ public class ChapterSyncService {
     @Autowired
     private ChapterRepository chapterRepository;
 
+    @Value("${task.chapter.sync.enabled:false}")
+    private boolean chapterSyncEnabled;
+
     @Scheduled(fixedDelay = 60_000, initialDelay = 120_000)
     public void retryUnSyncedChapters() {
+        // 如果配置关闭，直接返回
+        if (!chapterSyncEnabled) {
+            return;
+        }
+        
         // 如果未配置扩展数据库,直接返回
         if (chapterScalingUpOneRepository == null) {
             return;

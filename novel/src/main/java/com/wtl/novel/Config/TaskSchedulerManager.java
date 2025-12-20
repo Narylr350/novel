@@ -6,6 +6,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.wtl.novel.entity.Dictionary;
+import com.wtl.novel.repository.DictionaryRepository;
 import com.wtl.novel.siteMap.NovelHtmlGenerator;
 import com.wtl.novel.siteMap.NovelIndexGenerator;
 import com.wtl.novel.translator.Novelpia;
@@ -53,39 +55,57 @@ public class TaskSchedulerManager {
     @Autowired
     private UpdateNovelFromFile updateNovelFromFile;
 
-    // 从application.properties读取配置
+    @Autowired
+    private DictionaryRepository dictionaryRepository;
+
+    // 从application.properties读取配置（作为默认值）
     @Value("${task.scheduler.enabled:false}")
-    private boolean schedulerEnabled;
+    private boolean schedulerEnabledDefault;
 
     @Value("${task.novelpia.task2.enabled:false}")
-    private boolean task2Enabled;
+    private boolean task2EnabledDefault;
 
     @Value("${task.novelpia.photo.enabled:false}")
-    private boolean photoEnabled;
+    private boolean photoEnabledDefault;
 
     @Value("${task.novelpia.upload.translation.enabled:false}")
-    private boolean uploadTranslationEnabled;
+    private boolean uploadTranslationEnabledDefault;
 
     @Value("${task.novelpia.upload.translation.exception.enabled:false}")
-    private boolean uploadTranslationExceptionEnabled;
+    private boolean uploadTranslationExceptionEnabledDefault;
 
     @Value("${task.novelpia.task3.enabled:false}")
-    private boolean task3Enabled;
+    private boolean task3EnabledDefault;
 
     @Value("${task.novelpia.fix.error.chapter.enabled:false}")
-    private boolean fixErrorChapterEnabled;
+    private boolean fixErrorChapterEnabledDefault;
 
     @Value("${task.sitemap.html.generator.enabled:false}")
-    private boolean htmlGeneratorEnabled;
+    private boolean htmlGeneratorEnabledDefault;
 
     @Value("${task.sitemap.index.generator.enabled:false}")
-    private boolean indexGeneratorEnabled;
+    private boolean indexGeneratorEnabledDefault;
 
     @Value("${task.novelpia.crawler.enabled:false}")
-    private boolean crawlerEnabled;
+    private boolean crawlerEnabledDefault;
 
     @Value("${task.update.novel.from.file.enabled:false}")
-    private boolean updateNovelFromFileEnabled;
+    private boolean updateNovelFromFileEnabledDefault;
+
+    /**
+     * 从数据库读取任务开关配置，如果不存在则使用配置文件默认值
+     */
+    private boolean getTaskSwitch(String key, boolean defaultValue) {
+        try {
+            Dictionary dict = dictionaryRepository.findDictionaryByKeyFieldAndIsDeletedFalse(key);
+            if (dict != null) {
+                return "true".equalsIgnoreCase(dict.getValueField());
+            }
+        } catch (Exception e) {
+            log.warn("读取任务开关配置失败: {}, 使用默认值: {}", key, defaultValue);
+        }
+        return defaultValue;
+    }
 
     @Value("${task.failure.threshold:3}")
     private int failureThreshold;
@@ -112,16 +132,17 @@ public class TaskSchedulerManager {
     // 提交任务到线程池
     private void submitTask() {
         if (shouldExecute()) {
-            submitTaskIfEnabled("Novelpia-Task2", task2Enabled, this::executeTaskLogic2);
-            submitTaskIfEnabled("Novelpia-Photo", photoEnabled, this::executePhoto);
-            submitTaskIfEnabled("Novelpia-UploadTranslation", uploadTranslationEnabled, this::executeUploadTranslation);
-            submitTaskIfEnabled("Novelpia-UploadTranslationException", uploadTranslationExceptionEnabled, this::executeUploadTranslationException);
-            submitTaskIfEnabled("Novelpia-Task3", task3Enabled, this::executeTaskLogic3);
-            submitTaskIfEnabled("Novelpia-FixErrorChapter", fixErrorChapterEnabled, this::fixErrorChapter);
-            submitTaskIfEnabled("HtmlGenerator", htmlGeneratorEnabled, this::executeHtmlGenerator);
-            submitTaskIfEnabled("IndexGenerator", indexGeneratorEnabled, this::executeIndexGenerator);
-            submitTaskIfEnabled("NovelpiaCrawler", crawlerEnabled, this::executeCrawler);
-            submitTaskIfEnabled("UpdateNovelFromFile", updateNovelFromFileEnabled, this::executeUpdateNovelFromFile);
+            // 每次执行时从数据库读取最新配置
+            submitTaskIfEnabled("Novelpia-Task2", getTaskSwitch("task.novelpia.task2", task2EnabledDefault), this::executeTaskLogic2);
+            submitTaskIfEnabled("Novelpia-Photo", getTaskSwitch("task.novelpia.photo", photoEnabledDefault), this::executePhoto);
+            submitTaskIfEnabled("Novelpia-UploadTranslation", getTaskSwitch("task.novelpia.upload.translation", uploadTranslationEnabledDefault), this::executeUploadTranslation);
+            submitTaskIfEnabled("Novelpia-UploadTranslationException", getTaskSwitch("task.novelpia.upload.translation.exception", uploadTranslationExceptionEnabledDefault), this::executeUploadTranslationException);
+            submitTaskIfEnabled("Novelpia-Task3", getTaskSwitch("task.novelpia.task3", task3EnabledDefault), this::executeTaskLogic3);
+            submitTaskIfEnabled("Novelpia-FixErrorChapter", getTaskSwitch("task.novelpia.fix.error.chapter", fixErrorChapterEnabledDefault), this::fixErrorChapter);
+            submitTaskIfEnabled("HtmlGenerator", getTaskSwitch("task.sitemap.html.generator", htmlGeneratorEnabledDefault), this::executeHtmlGenerator);
+            submitTaskIfEnabled("IndexGenerator", getTaskSwitch("task.sitemap.index.generator", indexGeneratorEnabledDefault), this::executeIndexGenerator);
+            submitTaskIfEnabled("NovelpiaCrawler", getTaskSwitch("task.novelpia.crawler", crawlerEnabledDefault), this::executeCrawler);
+            submitTaskIfEnabled("UpdateNovelFromFile", getTaskSwitch("task.update.novel.from.file", updateNovelFromFileEnabledDefault), this::executeUpdateNovelFromFile);
         }
     }
 
@@ -293,7 +314,7 @@ public class TaskSchedulerManager {
 
     // 动态控制执行条件
     private boolean shouldExecute() {
-        return schedulerEnabled;
+        return getTaskSwitch("task.scheduler", schedulerEnabledDefault);
     }
 
     // 停止调度
