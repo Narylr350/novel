@@ -135,4 +135,8 @@ public interface NovelRepository extends JpaRepository<Novel, Long> {
 
     @Query("select n from Novel n where n.trueId in :trueIds")
     List<Novel> findAllByTrueIdIn(@Param("trueIds") Collection<String> trueIds);
+
+    // 阅读APP书源接口使用
+    Page<Novel> findByIsDeletedFalseOrderByUpDesc(Pageable pageable);
+    Page<Novel> findByPlatformAndIsDeletedFalseOrderByUpDesc(String platform, Pageable pageable);
 }

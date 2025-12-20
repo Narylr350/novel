@@ -37,7 +37,8 @@ public class URLMatcher {
 //            "^/api/novelPia/executeTask2", // 匹配 /api/novels/get?查询参数
 //            "^/api/novelPia/executeTask3", // 匹配 /api/novels/get?查询参数
             "^/api/novelPia/executeTask5", // 匹配 /api/novels/get?查询参数
-            "^/api/novelPia/saveNovelsByTagIdFix" // 匹配 /api/novels/get?查询参数
+            "^/api/novelPia/saveNovelsByTagIdFix", // 匹配 /api/novels/get?查询参数
+            "^/api/legado/.*$" // 阅读APP书源接口，无需认证
 //            "^/api/novelPia/executeTask7", // 匹配 /api/novels/get?查询参数
 //            "^/api/novelPia/executeTask6" // 匹配 /api/novels/get?查询参数
 //            "^/api/dic/getNovelDetail$", // 匹配 /api/novels/get?查询参数
