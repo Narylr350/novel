@@ -81,7 +81,7 @@
     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
     ```
   
-- [ ] **路径修改**：已根据实际情况修改脚本路径
+- [ ] **路径修改**：根据实际情况修改脚本路径
   - `import-sql.ps1`：第 9-11 行（SQL 文件路径）
   - `start-local.ps1`：第 58, 76 行（项目路径）
 
