@@ -1,9 +1,17 @@
 // src/utils/request.js
 import axios from 'axios';
-// import Element UI的Message组件
-import { ElMessage } from 'element-plus';
 import { generateSignature } from '@/utils/signature';
 
+// 安全的消息显示函数，延迟加载 ElMessage 避免初始化问题
+const showError = (msg) => {
+    setTimeout(() => {
+        import('element-plus').then(({ ElMessage }) => {
+            ElMessage.error(msg);
+        }).catch(() => {
+            console.error('Message error:', msg);
+        });
+    }, 0);
+};
 
 // 创建 axios 实例
 const service = axios.create({
@@ -68,7 +76,7 @@ service.interceptors.request.use((config) => {
     const titleText2 = getTitleText2();
     let newVar = titleText1 + titleText + titleText2;
     if (newVar.length > 0 && !containsChinese(newVar)) {
-        ElMessage.error("system error")
+        showError("system error");
         return Promise.reject(new Error('system error'));
     }
     if (config.url.includes('/api/auth/') && !config.url.includes('/api/auth/isLogin')) {
@@ -89,27 +97,28 @@ service.interceptors.response.use(
     (response) => {
         // 如果响应码为 401，清空 Authorization 并提示用户
         if (response.status === 401) {
-            // ElMessage.error('会话已过期，请重新登录');
             localStorage.removeItem('Authorization');
-            // window.location.href = '/login';
         } else if (response.status === 502) {
-            ElMessage.error('请勿频繁刷新页面');
+            showError('请勿频繁刷新页面');
         }
         return response;
     },
     (error) => {
         // 处理响应错误
-        // 如果是 401 未授权错误，清空 Authorization 并提示用户
         if (error.response && error.response.status === 401) {
-            // ElMessage.error('会话已过期，请重新登录');
             localStorage.removeItem('Authorization');
-            // window.location.href = '/login';
         }
-        // 对于其他错误，也可以根据需要进行提示
         else if (error.response) {
-            ElMessage.error(`${error.response.data}`);
+            const errorMsg = error.response.data || error.response.statusText || '请求失败';
+            if (errorMsg && typeof errorMsg === 'string') {
+                showError(errorMsg);
+            } else if (errorMsg && typeof errorMsg === 'object') {
+                showError(JSON.stringify(errorMsg));
+            } else {
+                showError('请求失败');
+            }
         } else {
-            ElMessage.error('请求出错，请稍后重试');
+            showError('请求出错，请稍后重试');
         }
         return Promise.reject(error);
     }

@@ -3,6 +3,7 @@ package com.wtl.novel.siteMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
@@ -20,6 +21,9 @@ public class NovelHtmlGenerator {
     private static final Random RANDOM = new Random();
     
     private final DataSource dataSource;
+    
+    @Value("${file.upload.storage-dir}")
+    private String storageDir;
 
     public NovelHtmlGenerator(@Qualifier("primaryDataSource") DataSource dataSource) {
         this.dataSource = dataSource;
@@ -317,6 +321,7 @@ public class NovelHtmlGenerator {
         html.append("  border-radius: 20px;\n");
         html.append("  padding: 8px 15px;\n");
         html.append("  font-size: 14px;\n");
+        html.append("  cursor: pointer;\n");
         html.append("}\n");
 
         html.append(".section {\n");
@@ -456,7 +461,9 @@ public class NovelHtmlGenerator {
         html.append("      </div>\n");
         html.append("    </div>\n");
         html.append("  </div>\n");
-        html.append("</div></body>\n</html>");
+        html.append("</div>\n");
+
+        html.append("</body>\n</html>");
 
         return html.toString();
     }
@@ -464,7 +471,13 @@ public class NovelHtmlGenerator {
     // 保存HTML文件
     private void saveHtmlFile(Long novelId, String htmlContent) {
         try {
-            File file = new File("C:\\Users\\30402\\IdeaProjects\\novel\\src\\main\\java\\com\\wtl\\novel\\siteMap\\model\\novelDetail" + novelId + ".html");
+            // 使用配置的存储目录 + html 子目录
+            File htmlDir = new File(storageDir, "html");
+            if (!htmlDir.exists()) {
+                htmlDir.mkdirs();
+            }
+            
+            File file = new File(htmlDir, "novelDetail" + novelId + ".html");
             try (FileWriter fw = new FileWriter(file);
                  BufferedWriter bw = new BufferedWriter(fw)) {
                 bw.write(htmlContent);

@@ -46,6 +46,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Entities;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -72,6 +74,8 @@ import java.util.stream.Stream;
 
 @Component
 public class Novelpia {
+
+    private static final Logger log = LoggerFactory.getLogger(Novelpia.class);
 
     @Autowired
     private UserFeedbackRepository userFeedbackRepository;
@@ -2455,14 +2459,29 @@ public class Novelpia {
         if (content == null || content.trim().isEmpty()) {
             return "无需汉化0ak2";
         }
+        
         Platform platform = platformRepository.findPlatformByPlatformName(platformName);
+        Logger log = null;
+        if (platform == null) {
+            log.warn("未找到平台配置: {}", platformName);
+            return "平台配置不存在，跳过翻译";
+        }
+        
         apiUrl = dictionaryRepository.findDictionaryByKeyFieldAndIsDeletedFalse(platformName).getValueField();
         List<PlatformApiKey> apiKeys = platformApiKeyRepository.findByPlatformIdAndIsDeletedFalse(platform.getId());
-//        ThreadLocalRandom random = ThreadLocalRandom.current();
+        
+        // 检查API密钥是否存在
+        if (apiKeys == null || apiKeys.isEmpty()) {
+            log.warn("平台 {} 没有配置有效的API密钥，跳过翻译", platformName);
+            return "未配置API密钥，请在管理页面添加有效的API密钥";
+        }
+        
         String apiKey = apiKeys.get(RANDOM.nextInt(apiKeys.size())).getApiKey().replaceAll("\\r?\\n", "");
-        if (content == null || content.isEmpty()) {
+        
+        if (content.isEmpty()) {
             return "本内容为空白内容，无需翻译";
         }
+        
         StringBuilder builder = new StringBuilder();
         ObjectMapper mapper = new ObjectMapper();
         content = processMultilineString(content);
@@ -2488,8 +2507,24 @@ public class Novelpia {
         int repeat_count = 0;
         try (Response response = httpClient.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-//                Thread.sleep(30000);
-                throw new RuntimeException(apiKey + "Unexpected code " + response);
+                int code = response.code();
+                String errorMsg = response.message();
+                
+                // 根据不同的错误码返回不同的提示
+                if (code == 401) {
+                    log.error("翻译API认证失败，请检查API密钥是否有效 - 平台: {}", platformName);
+                    return "[API认证失败] 请在管理页面检查或更新API密钥";
+                } else if (code == 429) {
+                    log.warn("翻译API请求过于频繁，等待重试");
+                    Thread.sleep(5000);
+                    return "[请求频繁] 请稍后重试";
+                } else if (code >= 500) {
+                    log.warn("翻译API服务器错误: {} - {}", code, errorMsg);
+                    return "[API服务器错误] " + code + " - " + errorMsg;
+                } else {
+                    log.warn("翻译API请求失败: {} - {}", code, errorMsg);
+                    return "[API请求失败] " + code + " - " + errorMsg;
+                }
             }
 
             assert response.body() != null;
@@ -2523,14 +2558,16 @@ public class Novelpia {
                                     throw new RuntimeException("循环错误！");
                                 }
                             }
-//                            System.out.println(text);
                             builder.append(text);
                         }
                     }
                 }
             }
+        } catch (Exception e) {
+            log.error("翻译过程中发生异常: {}", e.getMessage());
+            throw e;
         }
-        System.out.println("已翻译一部分" + apiKey + "_\n" + builder.toString());
+        log.debug("已翻译一部分 - 平台: {}", platformName);
         return builder.toString();
     }
 

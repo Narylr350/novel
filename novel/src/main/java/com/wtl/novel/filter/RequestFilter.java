@@ -52,21 +52,12 @@ public class RequestFilter implements Filter {
                 return;
             }
 
-            if (!validateAuthorization(httpRequest, httpResponse)) {
+            // 统一从请求中获取 token（支持 Header 和 URL 参数两种方式）
+            String token = getTokenFromRequest(httpRequest);
+            if (token == null || token.isEmpty()) {
+                httpResponse.sendError(HttpStatus.UNAUTHORIZED.value(), "缺少认证信息");
                 return;
             }
-
-            String authHeader = httpRequest.getHeader("Authorization");
-            if (authHeader == null || authHeader.isEmpty()) {
-                httpResponse.sendError(HttpStatus.UNAUTHORIZED.value(), "缺少 Authorization header");
-                return;
-            }
-            String[] authorizationInfo = authHeader.split(";");
-            if (authorizationInfo.length == 0) {
-                httpResponse.sendError(HttpStatus.UNAUTHORIZED.value(), "无效的 Authorization 格式");
-                return;
-            }
-            String token = authorizationInfo[0];
 
             Credential credential = credentialService.findByToken(token);
             if (credential == null || credential.getExpiredAt().isBefore(LocalDateTime.now())) {
@@ -83,6 +74,31 @@ public class RequestFilter implements Filter {
         } catch (Exception e) {
             log.error("请求过滤器处理异常", e);
         }
+    }
+
+    /**
+     * 从请求中获取 token
+     * 1. 优先从 Authorization header 获取
+     * 2. 其次从 URL 参数 token 获取（用于浏览器直接下载场景）
+     */
+    private String getTokenFromRequest(HttpServletRequest httpRequest) {
+        // 1. 先从 Authorization header 获取
+        String authHeader = httpRequest.getHeader("Authorization");
+        if (authHeader != null && !authHeader.isEmpty()) {
+            // 支持 "token" 或 "token;other" 格式
+            String[] parts = authHeader.split(";");
+            if (parts.length > 0 && parts[0] != null && !parts[0].trim().isEmpty()) {
+                return parts[0].trim();
+            }
+        }
+        
+        // 2. 从 URL 参数获取 token（用于浏览器直接下载）
+        String tokenParam = httpRequest.getParameter("token");
+        if (tokenParam != null && !tokenParam.trim().isEmpty()) {
+            return tokenParam.trim();
+        }
+        
+        return null;
     }
 
     private boolean handleOptionsRequest(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
@@ -123,27 +139,4 @@ public class RequestFilter implements Filter {
         }
     }
 
-    private boolean validateAuthorization(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
-        String authHeader = httpRequest.getHeader("Authorization");
-        if (authHeader == null || authHeader.isEmpty()) {
-            try {
-                httpResponse.sendError(HttpStatus.UNAUTHORIZED.value(), "缺少 Authorization header");
-            } catch (Exception e) {
-                log.error("发送错误响应失败", e);
-            }
-            return false;
-        }
-
-        String[] authorizationInfo = authHeader.split(";");
-        if (authorizationInfo.length == 0) {
-            try {
-                httpResponse.sendError(HttpStatus.UNAUTHORIZED.value(), "无效的 Authorization 格式");
-            } catch (Exception e) {
-                log.error("发送错误响应失败", e);
-            }
-            return false;
-        }
-
-        return true;
-    }
 }

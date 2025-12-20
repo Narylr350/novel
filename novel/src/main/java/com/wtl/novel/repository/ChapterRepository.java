@@ -50,6 +50,9 @@ public interface ChapterRepository extends JpaRepository<Chapter, Long> {
 
     List<Chapter> findByTrueId(String trueId);
 
+    // 获取小说所有章节（按章节号排序）用于导出
+    List<Chapter> findByNovelIdAndIsDeletedFalseOrderByChapterNumberAsc(Long novelId);
+
     // 自定义返回类型
     public interface ChapterNumberProjection {
         Long getId();

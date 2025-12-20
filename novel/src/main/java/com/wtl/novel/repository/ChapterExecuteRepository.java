@@ -79,4 +79,11 @@ public interface ChapterExecuteRepository extends JpaRepository<ChapterExecute, 
 
     @Query(value = "SELECT MAX(c.chapterNumber) FROM ChapterExecute c WHERE c.novelId = :novelId")
     Optional<Integer> findMaxChapterNumberByNovelId(Long novelId);
+
+    // 统计指定状态的章节数
+    long countByNowStateAndIsDeletedFalse(Integer nowState);
+
+    // 获取有待处理章节的小说列表
+    @Query("SELECT c.novelId, COUNT(c) FROM ChapterExecute c WHERE c.isDeleted = false AND c.nowState = 0 GROUP BY c.novelId ORDER BY COUNT(c) DESC")
+    List<Object[]> findNovelsWithPendingChapters();
 }

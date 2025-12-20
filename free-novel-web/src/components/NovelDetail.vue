@@ -35,6 +35,7 @@
             <button class="read-button" @click="openCommentModal" style="background-color: #00b5ff">发帖</button>
             <button class="edit-button" style="background-color: #000000" @click="urlPush('UserGlossaryPage', novel.id)">用户术语</button>
             <button class="read-button" @click="repeatEx" style="background-color: #00b5ff">重新汉化</button>
+            <button class="download-button" @click="downloadNovel" :disabled="isDownloading">{{ isDownloading ? '下载中...' : '下载小说' }}</button>
           </div>
         </div>
 
@@ -271,6 +272,7 @@ export default {
       recommendation:true,
       favoriteType: null,
       isSubmitting: false,
+      isDownloading: false,
       upType: '',
       isEditTitleModalOpen: false,
       newTitle: '',
@@ -836,6 +838,42 @@ repeatEx() {
           }).finally(() => {
             this.isSubmitting = false;
           });
+    },
+    // 下载小说
+    downloadNovel() {
+      if (this.isDownloading) return;
+      if (!this.chaptersPage || this.chaptersPage.length === 0) {
+        ElMessage.warning('该小说暂无可下载的章节');
+        return;
+      }
+      this.isDownloading = true;
+      ElMessage.info('正在准备下载，请稍候...');
+      
+      // 使用 axios 下载文件（带签名和token）
+      service.get(`/api/novels/export/${this.novel.id}`, {
+        responseType: 'blob',
+        timeout: 600000  // 10分钟超时，大文件需要更长时间
+      })
+      .then(response => {
+        // 创建下载链接
+        const blob = new Blob([response.data], { type: 'text/plain;charset=utf-8' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = (this.novel.title || '小说') + '.txt';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        ElMessage.success('下载成功');
+      })
+      .catch(error => {
+        console.error('下载失败:', error);
+        ElMessage.error('下载失败，请稍后重试');
+      })
+      .finally(() => {
+        this.isDownloading = false;
+      });
     }
   },
   watch: {
@@ -1049,6 +1087,28 @@ repeatEx() {
   font-size: 14px;
   margin-right: 10px;
   margin-bottom: 10px;
+}
+
+.download-button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 15px;
+  font-size: 14px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.download-button:hover {
+  background-color: #45a049;
+}
+
+.download-button:disabled {
+  background-color: #9e9e9e;
+  cursor: not-allowed;
 }
 
 .section {

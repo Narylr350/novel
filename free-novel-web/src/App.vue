@@ -65,6 +65,12 @@
                 <div class="menu-item" @click.stop="urlPush('/blacklistPage')">
                   <span>😠 拉黑</span>
                 </div>
+                <div class="menu-item" @click.stop="urlPush('/translationConfig')">
+                  <span>⚙️ 翻译配置</span>
+                </div>
+                <div class="menu-item" @click.stop="urlPush('/crawlerManager')">
+                  <span>🕷️ 爬虫管理</span>
+                </div>
                 <div class="menu-item" @click.stop="logout">
                   <span>🔚 退出</span>
                 </div>
@@ -121,13 +127,15 @@ export default {
       service.get(`/api/auth/isLogin`)
           .then(response => {
             this.isLoginTag = response.data; // 假设后端返回的是搜索结果列表
+            if (this.isLoginTag) {
+              this.getMessageNum()
+            }
           })
           .catch(() => {
             this.isLoginTag = false
           }).finally(()=>{
             localStorage.setItem("isLoginTag", this.isLoginTag)
       });
-      this.getMessageNum()
     },
     urlPush(url) {
       this.activeRoute = url; // 更新活跃的路由

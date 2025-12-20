@@ -31,6 +31,8 @@ const MessageView = () => import(/* webpackChunkName: "FeedBack" */ '../componen
 const InfoList = () => import(/* webpackChunkName: "FeedBack" */ '../components/InfoList.vue')
 const WriterDetail = () => import(/* webpackChunkName: "FeedBack" */ '../components/WriterDetail.vue')
 const WebLibraryNp = () => import(/* webpackChunkName: "FeedBack" */ '../components/WebLibraryNp.vue')
+const TranslationConfig = () => import(/* webpackChunkName: "Admin" */ '../components/TranslationConfig.vue')
+const CrawlerManager = () => import(/* webpackChunkName: "Admin" */ '../components/CrawlerManager.vue')
 const routes = [
     {
         path: '/infoList',
@@ -195,6 +197,16 @@ const routes = [
         path: '/userDetail',
         name: 'UserDetail',
         component: UserDetail,
+    },
+    {
+        path: '/translationConfig',
+        name: 'TranslationConfig',
+        component: TranslationConfig,
+    },
+    {
+        path: '/crawlerManager',
+        name: 'CrawlerManager',
+        component: CrawlerManager,
     },
 ];
 

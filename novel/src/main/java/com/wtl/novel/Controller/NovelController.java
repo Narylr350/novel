@@ -9,14 +9,23 @@ import com.wtl.novel.Service.NovelService;
 import com.wtl.novel.Service.UserService;
 import com.wtl.novel.entity.*;
 import com.wtl.novel.repository.ChapterRepository;
+import com.wtl.novel.repository.NovelRepository;
 import com.wtl.novel.repository.ReadingRecordRepository;
 import com.wtl.novel.util.ObfuscateFontOTF;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -45,6 +54,8 @@ public class NovelController {
     private ChapterRepository chapterRepository;
     @Autowired
     private ReadingRecordRepository readingRecordRepository;
+    @Autowired
+    private NovelRepository novelRepository;
 
 
 
@@ -259,6 +270,71 @@ public class NovelController {
 
         // 调用服务层方法
         return novelsWithPagination;
+    }
+
+    /**
+     * 导出小说为TXT文件下载
+     */
+    @GetMapping("/export/{novelId}")
+    public void exportNovelToTxt(@PathVariable Long novelId, HttpServletResponse response) {
+        try {
+            // 获取小说信息
+            Novel novel = novelRepository.findById(novelId).orElse(null);
+            if (novel == null) {
+                response.setContentType("text/plain; charset=UTF-8");
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                response.getWriter().write("小说不存在");
+                return;
+            }
+
+            // 获取所有章节
+            List<Chapter> chapters = chapterRepository.findByNovelIdAndIsDeletedFalseOrderByChapterNumberAsc(novelId);
+            if (chapters.isEmpty()) {
+                response.setContentType("text/plain; charset=UTF-8");
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                response.getWriter().write("该小说暂无章节");
+                return;
+            }
+
+            // 处理文件名，移除特殊字符
+            String safeTitle = novel.getTitle().replaceAll("[\\\\/:*?\"<>|]", "_");
+            String fileName = safeTitle + ".txt";
+            String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8).replace("+", "%20");
+            
+            // 设置响应头
+            response.setContentType("text/plain; charset=UTF-8");
+            response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + encodedFileName);
+            response.setCharacterEncoding("UTF-8");
+
+            // 写入文件内容
+            try (OutputStream outputStream = response.getOutputStream()) {
+                // 写入小说标题
+                String header = "【" + novel.getTitle() + "】\n\n";
+                outputStream.write(header.getBytes(StandardCharsets.UTF_8));
+
+                // 写入每个章节
+                for (Chapter chapter : chapters) {
+                    StringBuilder chapterContent = new StringBuilder();
+                    chapterContent.append("### 第").append(chapter.getChapterNumber()).append("章 : ")
+                            .append(chapter.getTitle()).append(" ###\n");
+                    String content = chapter.getContent();
+                    if (content != null) {
+                        chapterContent.append(content);
+                    }
+                    chapterContent.append("\n\n");
+                    outputStream.write(chapterContent.toString().getBytes(StandardCharsets.UTF_8));
+                }
+                outputStream.flush();
+            }
+        } catch (Exception e) {
+            try {
+                response.setContentType("text/plain; charset=UTF-8");
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.getWriter().write("导出失败: " + e.getMessage());
+            } catch (IOException ex) {
+                // 忽略
+            }
+        }
     }
 
 }

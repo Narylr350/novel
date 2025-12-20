@@ -3,6 +3,7 @@ package com.wtl.novel.siteMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
@@ -16,6 +17,9 @@ public class NovelIndexGenerator {
     private static final Logger log = LoggerFactory.getLogger(NovelIndexGenerator.class);
     
     private final DataSource dataSource;
+    
+    @Value("${file.upload.storage-dir}")
+    private String storageDir;
 
     public NovelIndexGenerator(@Qualifier("primaryDataSource") DataSource dataSource) {
         this.dataSource = dataSource;
@@ -113,7 +117,13 @@ public class NovelIndexGenerator {
     // 保存HTML文件
     private void saveHtmlFile(String fileName, String htmlContent) {
         try {
-            File file = new File("C:\\Users\\30402\\IdeaProjects\\novel\\src\\main\\java\\com\\wtl\\novel\\siteMap\\model\\" + fileName);
+            // 使用配置的存储目录 + html 子目录
+            File htmlDir = new File(storageDir, "html");
+            if (!htmlDir.exists()) {
+                htmlDir.mkdirs();
+            }
+            
+            File file = new File(htmlDir, fileName);
             try (FileWriter fw = new FileWriter(file);
                  BufferedWriter bw = new BufferedWriter(fw)) {
                 bw.write(htmlContent);
