@@ -18,8 +18,8 @@ public class NovelExporter {
     private static final String DB_USER = "root";
     private static final String DB_PASSWORD = "novel_root_password";
     
-    // 输出目录
-    private static final String OUTPUT_DIR = "D:/Narylr/FreeNovel/app/export/";
+    // 输出目录（相对路径，相对于运行目录）
+    private static final String OUTPUT_DIR = "./app/export/";
 
     public static void main(String[] args) {
         // 方式1：通过小说ID导出

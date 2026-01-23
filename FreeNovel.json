@@ -1,0 +1,55 @@
+{
+  "bookSourceComment": "FreeNovel小说网站书源",
+  "bookSourceGroup": "网络小说",
+  "bookSourceName": "FreeNovel",
+  "bookSourceType": 0,
+  "bookSourceUrl": "http://192.168.1.4:8081",
+  "bookUrlPattern": "",
+  "customOrder": 0,
+  "enabled": true,
+  "enabledCookieJar": false,
+  "enabledExplore": true,
+  "exploreUrl": "热门推荐::/api/legado/explore?page={{page}}&size=20\nNovelPia::/api/legado/explore/novelPia?page={{page}}&size=20\nSyosetu::/api/legado/explore/syosetu?page={{page}}&size=20\n用户上传::/api/legado/explore/upload?page={{page}}&size=20",
+  "lastUpdateTime": 1766235295451,
+  "respondTime": 180000,
+  "ruleBookInfo": {
+    "author": "$.author",
+    "coverUrl": "$.coverUrl",
+    "intro": "$.intro",
+    "kind": "$.tags[*]",
+    "lastChapter": "$.lastChapter",
+    "name": "$.name",
+    "tocUrl": "$.tocUrl",
+    "wordCount": "$.wordCount"
+  },
+  "ruleContent": {
+    "content": "$.content"
+  },
+  "ruleExplore": {
+    "author": "$.author",
+    "bookList": "$.books[*]",
+    "bookUrl": "$.bookUrl",
+    "coverUrl": "$.coverUrl",
+    "intro": "$.intro",
+    "kind": "$.kind",
+    "name": "$.name",
+    "wordCount": "$.wordCount"
+  },
+  "ruleSearch": {
+    "author": "$.author",
+    "bookList": "$.books[*]",
+    "bookUrl": "$.bookUrl",
+    "coverUrl": "$.coverUrl",
+    "intro": "$.intro",
+    "kind": "$.kind",
+    "name": "$.name",
+    "wordCount": "$.wordCount"
+  },
+  "ruleToc": {
+    "chapterList": "$[*]",
+    "chapterName": "$.chapterName",
+    "chapterUrl": "$.chapterUrl"
+  },
+  "searchUrl": "/api/legado/search?keyword={{key}}",
+  "weight": 0
+}

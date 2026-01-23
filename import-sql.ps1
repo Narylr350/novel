@@ -1,4 +1,4 @@
-# SQL Data Import Script
+﻿# SQL Data Import Script
 # Usage: Right-click -> Run with PowerShell
 
 Write-Host "========================================" -ForegroundColor Cyan

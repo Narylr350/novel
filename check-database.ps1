@@ -1,4 +1,4 @@
-# Check MariaDB Database Script
+﻿# Check MariaDB Database Script
 # Usage: Right-click this file -> Run with PowerShell
 
 Write-Host "========================================" -ForegroundColor Cyan

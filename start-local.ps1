@@ -1,4 +1,4 @@
-# FreeNovel Local Development Start Script
+﻿# FreeNovel Local Development Start Script
 # Usage: Right-click -> Run with PowerShell
 
 Write-Host "========================================" -ForegroundColor Cyan
