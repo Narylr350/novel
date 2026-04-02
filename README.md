@@ -13,62 +13,30 @@
 
 | 方式 | 推荐度 | 说明 |
 |------|:------:|------|
-| [本地运行](#-本地运行推荐) | ⭐⭐⭐ | 适合小白，一键脚本，无需 Docker |
-| [Docker 部署](#-docker-部署) | ⭐⭐ | 适合有 Docker 经验的用户 |
+| [Docker 部署](#-docker-部署推荐) | ⭐⭐⭐ | 当前推荐方式，仓库根目录旧脚本已移除 |
+| [本地运行](#-本地运行手动) | ⭐⭐ | 适合需要直接调试前后端源码的维护者 |
 
 ---
 
-## 📦 本地运行（推荐）
+## 📦 本地运行（手动）
 
-### 快速开始（3 分钟上手）
+仓库根目录旧的 PowerShell 辅助脚本已停止维护，不再作为支持的启动方式。
 
-**第一步**：从网盘下载 `FreeNovel`，移动到任意目录（建议英文路径，如 `D:/FreeNovel`）并阅读使用指南
-
-**第二步**：进入 `02-source/FreeNovel/` 目录，**右键点击脚本 → 使用 PowerShell 运行**：
-
-| 顺序 | 脚本 | 作用 |
-|:---:|------|------|
-| 1 | `1-检查环境.ps1` | 检查软件是否安装 |
-| 2 | `2-初始化数据库.ps1` | 创建数据库和用户 |
-| 3 | `3-导入数据.ps1` | 导入小说数据（需 4-6 小时） |
-| 4 | `4-启动项目.ps1` | 启动后端和前端 |
-
-**第三步**：启动成功后，浏览器访问 **http://localhost:8080**
-
----
-
-### 详细安装步骤
-
-#### 1. 安装必需软件
-
-运行 `1-检查环境.ps1` 会检测以下软件，未安装的请从 `01-installer/` 目录安装：
+### 1. 安装必需软件
 
 | 软件 | 版本要求 | 安装包 |
 |------|---------|--------|
 | Java | 21+ | `OpenJDK21U-jdk_x64_windows_hotspot_21.0.4_7.msi` |
-| Node.js | 16+ | `node-v20.11.1-x64.msi` |
+| Node.js | 20+ | `node-v20.11.1-x64.msi` |
 | MariaDB | 11+ | `mariadb-11.4.4-winx64.msi` |
 
 **MariaDB 安装注意事项**：
 - 安装时会要求设置 root 密码，**请记住这个密码**
 - 勾选 "Use UTF8 as default server's character set"
 
-#### 2. 修改配置（首次必做）
+### 2. 初始化数据库并导入数据
 
-打开 `config.ps1`，修改 SQL 文件路径：
-
-```powershell
-# SQL 文件目录（改成你的路径）
-$script:SQL_PATH = "D:/FreeNovel/03-sql"
-```
-
-#### 3. 初始化数据库
-
-运行 `2-初始化数据库.ps1`，输入 MariaDB 的 root 密码，脚本会自动创建数据库和用户。
-
-#### 4. 导入数据
-
-运行 `3-导入数据.ps1`，脚本会依次导入：
+使用 MariaDB 客户端手动导入 `sql/` 目录中的数据文件，建议导入顺序如下：
 
 | 文件 | 大小 | 预计耗时 |
 |------|------|---------|
@@ -79,28 +47,32 @@ $script:SQL_PATH = "D:/FreeNovel/03-sql"
 | expand.sql | ~360MB | 3-5 分钟 |
 | main.sql | ~20GB | 4-6 小时 |
 
-#### 5. 启动项目
+### 3. 启动后端
 
-运行 `4-启动项目.ps1`，会打开两个窗口：
-- 后端窗口（Spring Boot）- 端口 8081
-- 前端窗口（Vue）- 端口 8080
+```powershell
+cd novel
+mvn spring-boot:run -Pdev
+```
 
-等待启动完成后，访问 **http://localhost:8080**
+默认端口：`8081`
+
+### 4. 启动前端
+
+```powershell
+cd free-novel-web
+npm install
+npm run serve
+```
+
+默认端口：`8080`
+
+### 5. 访问系统
+
+浏览器访问 **http://localhost:8080**
 
 ---
 
-### 日常使用
-
-以后每次使用只需运行 `4-启动项目.ps1` 即可。
-
-| 脚本 | 作用 |
-|------|------|
-| `查看数据库.ps1` | 查看数据库状态和统计 |
-| `config.ps1` | 配置文件 |
-
----
-
-## 🐳 Docker 部署
+## 🐳 Docker 部署（推荐）
 
 适合有 Docker 经验的用户，或需要在服务器上部署的场景。
 
@@ -112,23 +84,15 @@ $script:SQL_PATH = "D:/FreeNovel/03-sql"
 
 ### 部署步骤
 
-#### 步骤一：启动 Docker 服务
+#### 步骤一：启动服务
 
 ```powershell
-# 使用一键启动脚本
-.\start.ps1
-
-# 或手动启动（本地单数据库模式）
 docker-compose -f docker-compose.local-single.yml up -d
 ```
 
 #### 步骤二：导入数据库
 
 ```powershell
-# 使用导入脚本
-.\import-sql.ps1
-
-# 或手动导入
 docker exec -i novel-mariadb mariadb -uroot -pnovel_root_password novel < your-file.sql
 ```
 
@@ -251,8 +215,7 @@ FreeNovel/
 │   │   └── api/
 │   └── public/
 │
-├── docker-compose*.yml       # Docker 配置
-└── *.ps1                     # PowerShell 脚本
+└── docker-compose*.yml       # Docker 配置
 ```
 
 ---

@@ -4,3 +4,11 @@ novel/target
 novel/.vscode
 novel/.mvn
 .vscode/settings.json
+.idea/
+free-novel-web/.idea/
+free-novel-web/node_modules/
+novel/.idea/
+app/logs/
+app/tmp/
+app/file/
+nul
