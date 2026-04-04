@@ -8,11 +8,11 @@
               <img :src="novel.photoUrl || ''" alt="小说封面">
             </div>
             <div class="novel-info">
-              <h1 class="novel-title" @click="openEditTitleModal">{{novel.title || '小说标题'}}</h1>
+              <h1 class="novel-title" @click="handleTitleClick">{{novel.title || '小说标题'}}</h1>
               <div class="tags">
                 <span @click="fetchTag(novelTag)" class="tag" v-for="(novelTag, index) in novelTags" :key="index">{{novelTag.name}}</span>
                 <span class="tagSpans" v-if="novel.spans">{{novel.spans}}</span>
-                <span @click="openTagEditModal" class="tag edit-tag">+ 编辑</span>
+                <span v-if="isMaintainerAppMode" @click="openTagEditModal" class="tag edit-tag">+ 编辑</span>
               </div>
               <div class="rating">
                 <span class="score">{{novel.up || 0}}</span>
@@ -20,7 +20,7 @@
                 <span class="score">{{novel.recommend || 0}}</span>
                 <span class="rating-count">推荐</span>
               </div>
-              <div class="novel-stats" @click="urlPushBlank('WriterDetail', novel.id)">
+              <div class="novel-stats" @click="openWriterDetail">
                 <span class="stat">{{novel.fontNumber || 0}}字 | {{novel.novelRead || 0}}源阅读 | {{novel.novelLike || 0}}源收藏 | 收藏于【{{novel.favoriteGroup}}】 | 作者:<span style="color: #0093ff;">{{novel.authorName}}</span> | 已读至第{{ novel.lastChapter }}章</span>
               </div>
             </div>
@@ -28,13 +28,13 @@
           <div class="action-buttons">
             <button @click="getHistory" v-if="novel.lastChapter && novel.lastChapter > 0" class="read-button">继续阅读</button>
             <button @click="getOne" v-if="this.chaptersPage && this.chaptersPage.length > 0 && (!novel.lastChapter || novel.lastChapter <= 0)" class="read-button">阅读</button>
-            <button v-if="novel.platform === 'novelPia'" class="read-button" style="background-color: #00b5ff" @click="getNew">获取新章节</button>
-            <button class="edit-button" style="background-color: #000000" @click="urlPush('GlossaryPage', novel.id)">AI术语</button>
+            <button v-if="isMaintainerAppMode && novel.platform === 'novelPia'" class="read-button" style="background-color: #00b5ff" @click="getNew">获取新章节</button>
+            <button v-if="isMaintainerAppMode" class="edit-button" style="background-color: #000000" @click="urlPush('GlossaryPage', novel.id)">AI术语</button>
             <button v-if="upType" class="shelf-button" @click="increaseUp">取消收藏</button>
             <button v-else class="shelf-button" @click="increaseUp">收藏</button>
             <button class="read-button" @click="openCommentModal" style="background-color: #00b5ff">发帖</button>
-            <button class="edit-button" style="background-color: #000000" @click="urlPush('UserGlossaryPage', novel.id)">用户术语</button>
-            <button class="read-button" @click="repeatEx" style="background-color: #00b5ff">重新汉化</button>
+            <button v-if="isMaintainerAppMode" class="edit-button" style="background-color: #000000" @click="urlPush('UserGlossaryPage', novel.id)">用户术语</button>
+            <button v-if="isMaintainerAppMode" class="read-button" @click="repeatEx" style="background-color: #00b5ff">重新汉化</button>
             <button class="download-button" @click="downloadNovel" :disabled="isDownloading">{{ isDownloading ? '下载中...' : '下载小说' }}</button>
           </div>
         </div>
@@ -70,7 +70,7 @@
                 :layout="paginationLayout"
                 :total="totalComments"
                 :page-size="pageSize"
-                pager-count="3"
+                :pager-count="5"
                 :current-page="currentPage"
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
@@ -138,7 +138,7 @@
           </div>
         </div>
       </div>
-        <div class="section">
+        <div v-if="isMaintainerAppMode && chaptersExecutePage.length > 0" class="section">
           <h2 class="section-title">待汉化目录 · {{chaptersExecutePage.length}}章</h2>
           <div class="chapter-list1">
             <div class="chapter-grid">
@@ -264,6 +264,7 @@
 <script>
 import service from "@/api/axios";
 import {ElMessage} from "element-plus";
+import { isMaintainerMode } from "../config/appMode.mjs";
 
 export default {
   name: 'NovelApp',
@@ -338,6 +339,9 @@ export default {
           return b.chapterNumber - a.chapterNumber;
         }
       });
+    },
+    isMaintainerAppMode() {
+      return isMaintainerMode();
     }
   },
 
@@ -351,7 +355,13 @@ export default {
   },
 
   methods: {
+handleTitleClick() {
+  if (this.isMaintainerAppMode) {
+    this.openEditTitleModal();
+  }
+},
 openTagEditModal() {
+  if (!this.isMaintainerAppMode) return
   this.editTagList = JSON.parse(JSON.stringify(this.novelTags))
   // 生成 {id: 原name} 快照
   this.originMap = {}
@@ -465,7 +475,11 @@ saveTags() {
             this.novel = response.data;
             this.favoriteType = this.novel.platform;
             this.fetchChapters(id);
-            this.fetchChapterExecutes(id);
+            if (this.isMaintainerAppMode) {
+              this.fetchChapterExecutes(id);
+            } else {
+              this.chaptersExecutePage = [];
+            }
             this.isFavorite(id);
             this.getTagsByNovelId(id);
             // this.fetchGlossaryTerms();
@@ -561,6 +575,9 @@ saveTags() {
       }
     },
     getNew() {
+      if (!this.isMaintainerAppMode) {
+        return;
+      }
       if (this.novel.platform === 'novelPia' && this.canExecute) {
         this.canExecute = false; // 标记为不可执行
         ElMessage.success("正在开启流程");
@@ -582,6 +599,9 @@ saveTags() {
       }
     },
     openEditTitleModal() {
+      if (!this.isMaintainerAppMode) {
+        return;
+      }
       this.newTitle = this.novel.title;
       this.isEditTitleModalOpen = true;
     },
@@ -613,6 +633,12 @@ saveTags() {
     urlPushBlank(url, id) {
       const routeData = this.$router.resolve({ name: url, params: { id: id } });
       window.open(routeData.href, '_blank');
+    },
+    openWriterDetail() {
+      if (!this.isMaintainerAppMode) {
+        return;
+      }
+      this.urlPushBlank('WriterDetail', this.novel.id);
     },
     // 修改后的收藏按钮点击事件
     increaseUp() {
@@ -751,6 +777,9 @@ saveTags() {
     // 新增：打开评论模态框
 /* 重新汉化：方法内弹确认框 */
 repeatEx() {
+  if (!this.isMaintainerAppMode) {
+    return;
+  }
   if (!this.canExecute) {
     ElMessage.warning('请求太频繁，请 2 分钟后再试');
     return;

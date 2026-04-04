@@ -155,6 +155,7 @@
 <script>
 import service from "@/api/axios";
 import { ElMessage } from "element-plus";
+import { buildRequestErrorMessage } from "@/utils/requestErrorMessage.mjs";
 
 export default {
   data() {
@@ -268,7 +269,8 @@ export default {
       service.get(`/api/favorites/user/group/${this.activeTab}`).then(response => {
         this.allNovels = response.data;
       }).catch(error => {
-        ElMessage.error(error);
+        console.error('获取收藏失败', error);
+        ElMessage.error(buildRequestErrorMessage('获取收藏失败', error));
       }).finally(() => {
         this.restoreScrollPosition()
       });
@@ -285,7 +287,8 @@ export default {
           await this.fetchFavorites();
         }
       } catch (error) {
-        ElMessage.error('获取平台错误:', error);
+        console.error('获取平台错误', error);
+        ElMessage.error(buildRequestErrorMessage('获取平台错误', error));
       }
     },
     clickTab(value) {
@@ -377,7 +380,8 @@ export default {
             this.fetchGroups();
           })
           .catch((error) => {
-            ElMessage.error('分组删除失败:', error);
+            console.error('分组删除失败', error);
+            ElMessage.error(buildRequestErrorMessage('分组删除失败', error));
           });
       }
     },
@@ -445,7 +449,8 @@ export default {
           // this.fetchGroups();
         })
         .catch(error => {
-          ElMessage.error('修改分组名称失败:', error);
+          console.error('修改分组名称失败', error);
+          ElMessage.error(buildRequestErrorMessage('修改分组名称失败', error));
         });
     },
     // 新增：处理鼠标滚轮事件

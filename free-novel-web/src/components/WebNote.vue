@@ -26,6 +26,7 @@
 <script>
 import service from "@/api/axios";
 import {ElMessage} from "element-plus";
+import { buildRequestErrorMessage } from "@/utils/requestErrorMessage.mjs";
 
 export default {
   name: 'BlogPage',
@@ -45,7 +46,8 @@ export default {
             this.articles = response.data; // 假设后端返回的是搜索结果列表
           })
           .catch(error => {
-            ElMessage.error('获取笔记失败:', error);
+            console.error('获取笔记失败', error);
+            ElMessage.error(buildRequestErrorMessage('获取笔记失败', error));
           });
     },
     getNotes(id) {

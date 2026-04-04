@@ -1,0 +1,191 @@
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\util\ChapterMigrator.java:72:        String query = "SELECT id, title, chapter_number, content, own_photo, true_id FROM chapter WHERE novel_id = ?";
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\util\ChapterMigrator.java:115:        String imgQuery = "SELECT content_link, location FROM chapter_image_links " +
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\util\ChapterMigrator.java:357:                    "FROM chapter WHERE id >= ? ORDER BY id LIMIT ?";
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\util\ChapterMigrator.java:365:                    String insertSQL = "INSERT INTO chapter_copy VALUES (?,?,?,?,?,?,?,?,?,?)";
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\util\ChapterMigrator.java:465:             ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM chapter")) {
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\util\ChapterMigrator.java:473:             ResultSet rs = stmt.executeQuery("SELECT MIN(id) FROM chapter")) {
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\util\ChapterMigrator.java:482:             ResultSet rs = stmt.executeQuery("SELECT MAX(id) FROM chapter")) {
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\util\ChapterExporterGUI.java:133:                             "SELECT chapter_number, title, content FROM chapter WHERE novel_id=? AND is_deleted=0 ORDER BY chapter_number");
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\scalingUp\repository\ChapterScalingUpOneRepository.java:21:    @Query("DELETE FROM ChapterScalingUpOne c WHERE c.novelId = :novelId")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\util\UpdateNovelFromFile.java:23:            "UPDATE novel SET novel_like = ?, novel_read = ?, author_id = ?, author_name = ? WHERE id = ?";
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\scalingUp\entity\ChapterScalingUpOne.java:12:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\NovelApplication.java:14:@EntityScan(basePackages = {"com.wtl.novel.entity", "com.wtl.novel.scalingUp.entity"})
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\UserRepository.java:19:    @Query("SELECT u.point FROM User u WHERE u.id = :userId")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\UserRepository.java:25:    @Query("UPDATE User u SET u.point = u.point + 100 WHERE u.id = :userId")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\UserRepository.java:31:    @Query("UPDATE User u SET u.point = u.point - :points WHERE u.id = :userId AND u.point >= :points")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\UserRepository.java:43:    @Query("UPDATE User u SET u.password = :newPassword WHERE u.id = :userId")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\UserRepository.java:50:    @Query("UPDATE User u SET u.upload = :upload WHERE u.id = :userId")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\UserRepository.java:56:    @Query("UPDATE User u SET u.email = :newEmail WHERE u.email = :oldEmail")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\UserGlossaryRepository.java:23:    @Query(value = "SELECT t FROM UserGlossary t WHERE t.novelId = :novelId AND (t.sourceName LIKE %:keyword% OR t.targetName LIKE %:keyword%)")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\UserFeedbackRepository.java:24:    @Query("UPDATE UserFeedback u SET u.isDelete = true WHERE u.novelId = :novelId AND u.chapterId = :chapterId")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\TerminologyRepository.java:25:    @Query("DELETE FROM Terminology t WHERE t.novelId = :novelId")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\TerminologyRepository.java:28:    @Query(value = "SELECT t FROM Terminology t WHERE t.novelId = :novelId AND NOT (t.sourceName = '已下载' AND t.targetName = '已下载')")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\TerminologyRepository.java:31:    @Query(value = "SELECT DISTINCT t.chapterNum FROM Terminology t WHERE t.novelId = :novelId")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\TerminologyRepository.java:35:    @Query(value = "SELECT DISTINCT t.chapterTrueId FROM Terminology t WHERE t.chapterTrueId IN :chapterTrueIds")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\TerminologyRepository.java:41:    @Query(value = "SELECT t FROM Terminology t WHERE t.novelId = :novelId AND NOT (t.sourceName = '已下载' AND t.targetName = '已下载')")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\TerminologyRepository.java:44:    @Query(value = "SELECT DISTINCT t.chapterNum FROM Terminology t WHERE t.novelId = :novelId AND t.sourceName = :sourceName AND t.targetName = :targetName")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\TerminologyRepository.java:53:    @Query(value = "SELECT t FROM Terminology t WHERE t.novelId = :novelId AND (t.sourceName LIKE %:keyword% OR t.targetName LIKE %:keyword%)")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\TagRepository.java:25:    @Query("SELECT t FROM Tag t WHERE t.platform = :platform ORDER BY t.id")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\TagRepository.java:29:    @Query("SELECT t FROM Tag t WHERE (t.name LIKE %:keyword% OR t.trueName LIKE %:keyword%) ORDER BY t.id")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\TagRepository.java:32:    @Query("SELECT t FROM Tag t WHERE t.platform = :platform AND (t.name LIKE %:keyword% OR t.trueName LIKE %:keyword%) ORDER BY t.id")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\TagRepository.java:37:    @Query("SELECT t FROM Tag t WHERE t.platform = :platform AND t.trueName IN :names")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ShuTuNovelChapterRepository.java:23:    @Query("DELETE FROM ShuTuNovelChapter c WHERE c.novelId = :novelId")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\siteMap\NovelIndexGenerator.java:68:        String sql = "SELECT id, title, true_name FROM novel WHERE is_deleted = 0";
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\util\NovelpiaCrawler.java:75:            String sql = "SELECT id, true_id FROM novel WHERE is_deleted = 0";
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterRepository.java:23:    @Query("DELETE FROM Chapter c WHERE c.novelId = :novelId")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterRepository.java:31:    @Query("SELECT c.id FROM Chapter c " +
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterRepository.java:41:    @Query("SELECT c.title FROM Chapter c WHERE c.novelId = :novelId AND c.isDeleted = false")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterRepository.java:45:    @Query("SELECT c.trueId FROM Chapter c WHERE c.novelId = :novelId AND c.isDeleted = false")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterRepository.java:48:    @Query("SELECT c.id FROM Chapter c WHERE c.novelId = :novelId AND c.isDeleted = false ORDER BY c.chapterNumber ASC")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterRepository.java:63:            "FROM Chapter c " +
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterRepository.java:67:    @Query("SELECT c.chapterNumber FROM Chapter c WHERE c.novelId = :novelId AND c.isDeleted = false ORDER BY c.chapterNumber ASC")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterRepository.java:73:    @Query("SELECT c.chapterNumber FROM Chapter c WHERE c.id = :id AND c.isDeleted = false")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterRepository.java:76:    @Query(value = "SELECT MAX(c.chapterNumber) FROM Chapter c WHERE c.novelId = :novelId")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterRepository.java:80:            "FROM Chapter c " +
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterRepository.java:96:    @Query(value = "SELECT * FROM chapter WHERE novel_id = :novelId AND is_deleted = 0 ORDER BY RAND() LIMIT 1", nativeQuery = true)
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterImageLinkRepository.java:18:    @Query("DELETE FROM ChapterImageLink c WHERE c.chapterTrueId = :chapterTrueId")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterExecuteRepository.java:20:    @Query("DELETE FROM ChapterExecute c WHERE c.novelId = :novelId")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterExecuteRepository.java:23:    @Query("SELECT c.title FROM ChapterExecute c WHERE c.novelId = :novelId AND c.isDeleted = false")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterExecuteRepository.java:30:    @Query("SELECT c.id FROM ChapterExecute c WHERE c.novelId = :novelId AND c.chapterNumber = :chapterNumber AND c.isDeleted = false")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterExecuteRepository.java:40:            "FROM ChapterExecute c " +
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterExecuteRepository.java:52:    @Query("SELECT c FROM ChapterExecute c " +
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterExecuteRepository.java:60:    @Query("SELECT c.chapterNumber FROM ChapterExecute c WHERE c.novelId = :novelId AND c.isDeleted = false")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterExecuteRepository.java:66:    @Query("UPDATE ChapterExecute ce SET ce.nowState = 0 WHERE ce.nowState = 3")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterExecuteRepository.java:71:    @Query("SELECT DISTINCT c.novelId FROM ChapterExecute c " +
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterExecuteRepository.java:80:    @Query(value = "SELECT MAX(c.chapterNumber) FROM ChapterExecute c WHERE c.novelId = :novelId")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterExecuteRepository.java:87:    @Query("SELECT c.novelId, COUNT(c) FROM ChapterExecute c WHERE c.isDeleted = false AND c.nowState = 0 GROUP BY c.novelId ORDER BY COUNT(c) DESC")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterErrorExecuteRepository.java:17:    @Query("SELECT c.title FROM ChapterErrorExecute c WHERE c.novelId = :novelId AND c.isDeleted = false")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterErrorExecuteRepository.java:24:    @Query("SELECT c.id FROM ChapterErrorExecute c WHERE c.novelId = :novelId AND c.chapterNumber = :chapterNumber AND c.isDeleted = false")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterErrorExecuteRepository.java:34:            "FROM ChapterErrorExecute c " +
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterErrorExecuteRepository.java:46:    @Query("SELECT c FROM ChapterErrorExecute c " +
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterErrorExecuteRepository.java:54:    @Query("SELECT c.chapterNumber FROM ChapterErrorExecute c WHERE c.novelId = :novelId AND c.isDeleted = false")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterErrorExecuteRepository.java:60:    @Query("UPDATE ChapterErrorExecute ce SET ce.nowState = 0 WHERE ce.nowState = 3")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterErrorExecuteRepository.java:66:    @Query("UPDATE ChapterErrorExecute c SET c.isDeleted = true WHERE c.id = :id")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\Config\TableSqlRepository.java:45:                `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\Config\TableSqlRepository.java:93:                `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\Config\TableSqlRepository.java:119:                `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\Config\TableSqlRepository.java:175:                `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\Config\TableSqlRepository.java:227:                `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\Config\TableSqlRepository.java:337:                `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\Config\TableSqlRepository.java:676:                `update_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\Config\TableSqlRepository.java:708:                `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\ChapterCommentRepository.java:35:    @Query("UPDATE ChapterComment cc SET cc.username = :newUsername WHERE cc.userId = :userId")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\UserTagFilter.java:5:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\UserTagFilter.java:6:@Table(name = "user_tag_filter",
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\PostRepository.java:24:    @Query("SELECT p FROM Post p WHERE p.postType = :postType")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\PostRepository.java:28:    @Query("SELECT p FROM Post p WHERE p.collections = :novelId")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\PostRepository.java:35:    @Query("UPDATE Post p SET p.commentNum = p.commentNum + 1 WHERE p.id = :id")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\InvitationCodeRepository.java:24:    @Query("UPDATE InvitationCode ic SET ic.boundEmail = :newEmail WHERE ic.boundEmail = :oldEmail")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\util\NovelExporter.java:52:            String sql = "SELECT id, title FROM novel WHERE (title LIKE ? OR true_name LIKE ?) AND is_deleted = 0";
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\util\NovelExporter.java:81:                 "SELECT chapter_number, title, content FROM chapter WHERE novel_id = ? AND is_deleted = 0 ORDER BY chapter_number");
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\util\NovelExporter.java:115:                 "SELECT title FROM novel WHERE id = ? AND is_deleted = 0")) {
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\siteMap\NovelHtmlGenerator.java:109:        String sql = "SELECT id, title, true_name FROM novel WHERE is_deleted = 0";
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\siteMap\NovelHtmlGenerator.java:129:        String sql = "SELECT id,chapter_number, title FROM chapter WHERE novel_id = ? AND is_deleted = 0 ORDER BY chapter_number";
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\siteMap\NovelHtmlGenerator.java:150:        String sql = "SELECT t.name, t.true_name FROM tag t " +
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\siteMap\NovelHtmlGenerator.java:151:                "JOIN novel_tag nt ON t.id = nt.tag_id " +
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\siteMap\NovelHtmlGenerator.java:171:        String sql = "SELECT content FROM chapter WHERE novel_id = ? AND chapter_number = 1 AND is_deleted = 0";
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\NovelRepository.java:29://    @Query("SELECT new com.wtl.novel.DTO.NovelSimpleDto(n.id, n.title, n.trueId) FROM Novel n WHERE n.platform = 'novelPia' n.up > 0")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\NovelRepository.java:46:    @Query("SELECT n FROM Novel n WHERE n.isDeleted = false")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\NovelRepository.java:49:    @Query("SELECT n FROM Novel n WHERE n.platform = :platform AND n.novelType = :novelType AND n.fontNumber BETWEEN :fontNumber1 AND :fontNumber2 AND n.isDeleted = false ORDER BY n.up DESC")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\NovelRepository.java:60:    @Query("UPDATE Novel n SET n.title = :title WHERE n.id = :id")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\NovelRepository.java:63:    @Query("SELECT n FROM Novel n WHERE n.platform = :platform AND n.fontNumber BETWEEN :fontNumber1 AND :fontNumber2 AND n.isDeleted = false ORDER BY n.up DESC")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\NovelRepository.java:72:            "FROM Novel n " +
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\NovelRepository.java:85:    @Query("SELECT n FROM Novel n WHERE n.id IN :novelIds AND n.platform = :platform AND n.fontNumber BETWEEN :fontNumber1 AND :fontNumber2 AND n.isDeleted = false ORDER BY n.up DESC")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\NovelRepository.java:104:            "FROM Novel n " +
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\NovelRepository.java:117:    @Query("SELECT n.id FROM Novel n WHERE n.isDeleted = false AND n.up > 0")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\NovelRepository.java:124:    @Query("UPDATE Novel n SET n.fontNumber = n.fontNumber + :increment WHERE n.id = :id")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\NovelRepository.java:133:    @Query(value = "SELECT * FROM novel WHERE is_deleted = 0 ORDER BY RAND() LIMIT 1", nativeQuery = true)
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\NoteRepository.java:28:    @Query("SELECT n FROM Note n WHERE n.novelId = :novelId AND n.content LIKE %:contentKeyword%")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\NoteRepository.java:36:    @Query("UPDATE Note n SET n.isDeleted = true WHERE n.id IN :ids")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\NoteRepository.java:39:    @Query("SELECT n FROM Note n WHERE n.userId = :userId AND n.chapterId = :chapterId AND n.isDeleted = false")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\NoteRepository.java:45:    @Query("SELECT DISTINCT n.novelId FROM Note n WHERE n.userId = :userId AND n.isDeleted = false")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\NoteRepository.java:51:    @Query("DELETE FROM Note n WHERE n.id IN :ids AND n.userId = :userId")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\FavoriteRepository.java:36:    @Query("UPDATE Favorite f SET f.groupId = :newGroupId WHERE f.userId = :userId AND f.groupId = :oldGroupId")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\PostCommentRepository.java:24:    @Query("UPDATE PostComment pc SET pc.username = :newUsername WHERE pc.userId = :userId")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\UserOperationLog.java:6:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\UserOperationLog.java:7:@Table(name = "user_operation_log")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\NovelTagRepository.java:19:    @Query("SELECT nt.novelId FROM NovelTag nt GROUP BY nt.novelId HAVING SUM(CASE WHEN nt.tagId IN :tagIds THEN 1 ELSE 0 END) = 0")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\NovelTagRepository.java:22:    @Query("SELECT nt.tagId FROM NovelTag nt WHERE nt.novelId = :novelId")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\NovelTagRepository.java:26:    @Query("SELECT nt.novelId FROM NovelTag nt WHERE nt.tagId IN :tagIds GROUP BY nt.novelId HAVING COUNT(DISTINCT nt.tagId) = :tagCount")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\repository\NovelTagRepository.java:29:    @Query("SELECT nt FROM NovelTag nt WHERE nt.novelId = :novelId AND nt.tagId = :tagId")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\UserNovelRelation.java:6:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\UserNovelRelation.java:7:@Table(name = "user_novel_relation")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\UserGlossary.java:7:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\UserGlossary.java:8:@Table(
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\UserGlossary.java:20:@EntityListeners(AuditingEntityListener.class)
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\Config\DatabaseInitializer.java:183:                    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\Config\DatabaseInitializer.java:209:            String checkSql = "SELECT COUNT(*) FROM dictionary WHERE is_deleted = 0";
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\Config\DatabaseInitializer.java:297:                    INSERT INTO dictionary (key_field, value_field, description, is_deleted)
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\Config\DatabaseInitializer.java:327:            String checkSql = "SELECT COUNT(*) FROM user";
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\Config\DatabaseInitializer.java:345:                    INSERT INTO user (email, password, point, upload, hide_read_books)
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\Config\DatabaseInitializer.java:407:                INSERT INTO invitation_code (code, used, user_id)
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\Config\DatabaseInitializer.java:424:                INSERT INTO invitation_code (code, used, bound_email, user_id)
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\Config\DatabaseInitializer.java:441:        String queryCodeSql = "SELECT id FROM invitation_code WHERE code = ?";
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\Config\DatabaseInitializer.java:456:        String updateUserSql = "UPDATE user SET invitation_code_id = ? WHERE id = ?";
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\Service\NovelService.java:257:                    "UPDATE Novel n SET n.recommend = CASE n.id ");
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\UserFeedback.java:6:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\UserFeedback.java:7:@Table(name = "user_feedback")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\UserChapterEdit.java:8:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\UserChapterEdit.java:9:@Table(name = "user_chapter_edit",
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\UserBlacklist.java:8:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\UserBlacklist.java:9:@Table(name = "user_blacklist",
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\Message.java:7:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\Message.java:8:@Table(name = "message")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\InvitationCode.java:7:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\InvitationCode.java:8:@Table(name = "invitation_code")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\UserAccessLog.java:8:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\UserAccessLog.java:9:@Table(name = "user_access_logs")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\User.java:5:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\User.java:6:@Table(name = "user")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\Terminology.java:6:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\Terminology.java:7:@Table(name = "terminology")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\FavoriteGroups.java:6:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\FavoriteGroups.java:7:@Table(name = "favorite_groups")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\Tag.java:6:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\Favorite.java:9:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\Favorite.java:10:@Table(name = "favorites")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\ShuTuNovelChapter.java:7:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\ShuTuNovelChapter.java:8:@Table(name = "novel_chapter")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\RequestLog.java:6:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\RequestLog.java:7:@Table(name = "request_log")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\Dictionary.java:6:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\Dictionary.java:7:@Table(name = "dictionary")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\ReadingRecord.java:7:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\ReadingRecord.java:8:@Table(name = "reading_record")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\Credential.java:8:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\Credential.java:9:@Table(name = "credential")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\Comment.java:5:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\Comment.java:6:@Table(name = "comment")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\PostComment.java:6:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\PostComment.java:7:@Table(name = "post_comment")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\ChapterUpdate.java:11:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\ChapterUpdate.java:12:@Table(name = "chapter_updates")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\PostAgree.java:5:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\PostAgree.java:6:@Table(
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\Service\NovelExportService.java:53:                 "SELECT chapter_number, title, content FROM chapter WHERE novel_id = ? AND is_deleted = 0 ORDER BY chapter_number")) {
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\ChapterSync.java:10:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\ChapterSync.java:11:@Table(name = "chapter_sync")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\Post.java:6:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\Post.java:7:@Table(name = "post")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\ChapterImageLink.java:7:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\ChapterImageLink.java:8:@Table(name = "chapter_image_links")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\PlatformApiKey.java:5:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\PlatformApiKey.java:6:@Table(name = "platform_api_key")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\ChapterExecute.java:8:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\ChapterExecute.java:9:@Table(name = "chapter_execute")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\Platform.java:6:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\Platform.java:7:@Table(name = "platform")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\ChapterErrorExecute.java:5:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\ChapterErrorExecute.java:6:@Table(name = "chapter_error_execute")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\ChapterCopy.java:11:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\NovelTag.java:10:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\NovelTag.java:11:@Table(name = "novel_tag") // 显式指定表名
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\ChapterComment.java:7:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\ChapterComment.java:8:@Table(name = "chapter_comment",
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\NovelDownloadLimit.java:8:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\Chapter.java:12:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\Novel.java:8:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\Novel.java:37:    // 更新时间 —— 每次 UPDATE 时由数据库自动刷新
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\Novel.java:39:            columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\Note.java:6:@Entity
+D:\Narylr\FreeNovel\novel\src\main\java\com\wtl\novel\entity\Note.java:7:@Table(name = "notes")

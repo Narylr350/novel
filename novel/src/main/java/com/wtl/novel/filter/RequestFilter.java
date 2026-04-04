@@ -1,5 +1,6 @@
 package com.wtl.novel.filter;
 
+import com.wtl.novel.Config.CorsPolicy;
 import com.wtl.novel.Service.CredentialService;
 import com.wtl.novel.Service.RequestLogService;
 import com.wtl.novel.entity.Credential;
@@ -25,6 +26,9 @@ public class RequestFilter implements Filter {
 
     @Autowired
     private RequestLogService requestLogService;
+
+    @Autowired
+    private CorsPolicy corsPolicy;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
@@ -106,9 +110,31 @@ public class RequestFilter implements Filter {
             return false;
         }
 
-        httpResponse.setHeader("Access-Control-Allow-Origin", "*");
-        httpResponse.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        httpResponse.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+        String origin = httpRequest.getHeader("Origin");
+        if (origin == null || origin.isBlank()) {
+            httpResponse.setStatus(HttpServletResponse.SC_OK);
+            return true;
+        }
+
+        String allowedOrigin = corsPolicy.resolveAllowedOrigin(origin);
+        if (allowedOrigin == null) {
+            try {
+                httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "CORS origin not allowed");
+            } catch (Exception e) {
+                log.error("写入CORS拒绝响应失败", e);
+            }
+            return true;
+        }
+
+        String requestedMethod = httpRequest.getHeader("Access-Control-Request-Method");
+        String requestedHeaders = httpRequest.getHeader("Access-Control-Request-Headers");
+
+        httpResponse.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+        httpResponse.setHeader("Vary", "Origin");
+        httpResponse.setHeader("Access-Control-Allow-Methods",
+                requestedMethod != null && !requestedMethod.isBlank() ? requestedMethod : "GET, POST, PUT, DELETE, OPTIONS");
+        httpResponse.setHeader("Access-Control-Allow-Headers",
+                requestedHeaders != null && !requestedHeaders.isBlank() ? requestedHeaders : "Authorization, Content-Type");
         httpResponse.setHeader("Access-Control-Max-Age", "3600");
         httpResponse.setStatus(HttpServletResponse.SC_OK);
         return true;

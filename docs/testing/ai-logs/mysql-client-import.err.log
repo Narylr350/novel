@@ -1,0 +1,2 @@
+mysql: [Warning] Using a password on the command line interface can be insecure.
+ERROR 1366 (22007) at line 26: Incorrect string value: '\x80 \xEB\x8B\xAC\xEB...' for column `chapter_error_probe_mysqlcli`.`chapter_error_execute`.`content` at row 1

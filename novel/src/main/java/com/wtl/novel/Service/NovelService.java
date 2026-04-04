@@ -432,6 +432,11 @@ public class NovelService {
     public Page<NovelCTO> getNovelsWithPagination(String platform, String fontNumber, String tagIdStr,
             Pageable pageable, Long userId) {
         List<Long> tagIdList = convertToLongList(tagIdStr);
+        List<Long> filterTagIds = userId == null
+                ? Collections.emptyList()
+                : userTagFilterService.getFilterTag(userId).stream()
+                .map(UserTagFilter::getTagId)
+                .toList();
         String[] parts = fontNumber.split("_");
         // 检查是否分隔成功且有两部分
         if (parts.length != 2) {
@@ -445,10 +450,6 @@ public class NovelService {
                     firstNumber, secondNumber, pageable);
 
             // 获取用户过滤标签和小说标签
-            List<UserTagFilter> filterTag = userTagFilterService.getFilterTag(userId);
-            List<Long> filterTagIds = filterTag.stream()
-                    .map(UserTagFilter::getTagId)
-                    .toList();
             List<Long> novelIds = page.getContent().stream().map(NovelCTO::getId).toList();
             List<NovelTag> novelTags = novelTagRepository.findAllByNovelIdIn(novelIds);
             Map<Long, List<Long>> novelTagMap = novelTags.stream()
@@ -477,10 +478,6 @@ public class NovelService {
                     platform, firstNumber, secondNumber, pageable);
 
             // 获取用户过滤标签和小说标签
-            List<UserTagFilter> filterTag = userTagFilterService.getFilterTag(userId);
-            List<Long> filterTagIds = filterTag.stream()
-                    .map(UserTagFilter::getTagId)
-                    .toList();
             List<Long> novelIds = page.getContent().stream().map(NovelCTO::getId).toList();
             List<NovelTag> novelTags = novelTagRepository.findAllByNovelIdIn(novelIds);
             Map<Long, List<Long>> novelTagMap = novelTags.stream()

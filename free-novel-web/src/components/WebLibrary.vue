@@ -189,9 +189,19 @@
 <script>
 import service from '@/api/axios';
 import { ElMessage } from 'element-plus';
+import { buildRequestErrorMessage } from '@/utils/requestErrorMessage.mjs';
+import {
+  buildPlatformOptions,
+  createAllTagSelection,
+  resolveActiveTopic,
+} from '@/utils/platformOptions.mjs';
 
 export default {
   data() {
+    const savedActiveTopic = localStorage.getItem("activeTopic");
+    const initialActiveTopic = savedActiveTopic ? savedActiveTopic : 'novelPia';
+    const savedSelectedTags = localStorage.getItem("selectedTags");
+
     return {
       topicOptions: [],
       wordCountOptions: [
@@ -210,7 +220,7 @@ export default {
         { label: '上架', value: 'createdAt' ,platform:'novelPia|upload'},
         { label: '更新', value: 'updatedAt' ,platform:'novelPia|upload'},
       ],
-      activeTopic: localStorage.getItem("activeTopic") ? localStorage.getItem("activeTopic") : 'novelPia',
+      activeTopic: initialActiveTopic,
       activeWordCount: localStorage.getItem("activeWordCount") ? localStorage.getItem("activeWordCount") : '0_1000000000',
       activeSort: localStorage.getItem("activeSort") || 'up',
       sortDirection: localStorage.getItem("sortDirection") || 'desc',
@@ -232,7 +242,7 @@ export default {
       currentMessageIndex: null,
       searchTagPha: '',
       maxVisibleTags: 10,
-      selectedTags: localStorage.getItem("selectedTags") ? JSON.parse(localStorage.getItem("selectedTags")) : [{"id": 0, "name": "全部", "platform": "novelPia", "trueName": "all"}],
+      selectedTags: savedSelectedTags ? JSON.parse(savedSelectedTags) : createAllTagSelection(initialActiveTopic),
       controlsVisible: false,
       isAutoPlayPaused: false,
       jumpPage: null, // 新增：用于存储用户输入的页码
@@ -299,7 +309,8 @@ export default {
             await this.getNovelsByPlatform();
           }
         } catch (error) {
-          ElMessage.error('获取平台标签错误:', error);
+          console.error('获取平台标签错误', error);
+          ElMessage.error(buildRequestErrorMessage('获取平台标签错误', error));
         }
       } else {
         await this.getAllTags(this.activeTopic)
@@ -321,15 +332,21 @@ export default {
     async getPlatformsByType() {
       try {
         const response = await service.get('/api/platform/novel');
-        this.topicOptions = response.data.map(item => ({
-          label: item.platformName,
-          value: item.platformName
-        }));
+        this.topicOptions = buildPlatformOptions(response.data);
+        this.activeTopic = resolveActiveTopic(this.topicOptions, this.activeTopic);
+        localStorage.setItem("activeTopic", this.activeTopic);
+
+        const selectedTagPlatform = this.selectedTags?.[0]?.platform;
+        if (selectedTagPlatform !== this.activeTopic) {
+          this.selectedTags = createAllTagSelection(this.activeTopic);
+          localStorage.setItem("selectedTags", JSON.stringify(this.selectedTags));
+        }
         if (this.topicOptions && this.topicOptions.length > 0) {
           await this.getAllTags(this.activeTopic);
         }
       } catch (error) {
-        ElMessage.error('获取平台错误:', error);
+        console.error('获取平台错误', error);
+        ElMessage.error(buildRequestErrorMessage('获取平台错误', error));
       }
     },
     async getAllTags(platform) {
@@ -348,7 +365,8 @@ export default {
           await this.getNovelsByPlatform();
         }
       } catch (error) {
-        ElMessage.error('获取平台标签错误:', error);
+        console.error('获取平台标签错误', error);
+        ElMessage.error(buildRequestErrorMessage('获取平台标签错误', error));
       }
     },
     async getNovelsByPlatform() {
@@ -367,13 +385,14 @@ export default {
         this.totalPages = response.data.totalPages;
         this.totalElements = response.data.totalElements;
       } catch (error) {
-        ElMessage.error('获取平台错误:', error);
+        console.error('获取平台错误', error);
+        ElMessage.error(buildRequestErrorMessage('获取平台错误', error));
       }
     },
     setActiveTopic(value) {
       this.currentPage = 1;
       this.activeTopic = value;
-      this.selectedTags = [{"id": 0, "name": "全部", "platform": "novelPia", "trueName": "all"}]
+      this.selectedTags = createAllTagSelection(value);
       localStorage.setItem("currentPage", this.currentPage);
       localStorage.setItem("activeTopic", this.activeTopic);
       localStorage.setItem("selectedTags", JSON.stringify(this.selectedTags));

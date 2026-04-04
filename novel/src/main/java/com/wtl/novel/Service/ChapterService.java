@@ -15,6 +15,8 @@ import com.wtl.novel.util.ObfuscateFontOTF;
 import com.wtl.novel.util.QuoteModifier;
 import com.wtl.novel.util.StringEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -54,6 +56,8 @@ public class ChapterService {
     private  ChapterSyncRepository chapterSyncRepository;
     @Autowired(required = false)
     private ChapterScalingUpOneRepository chapterScalingUpOneRepository;
+    @Value("${app.ui.mode:reader}")
+    private String appUiMode;
     private final static QuoteModifier quoteModifier = new QuoteModifier();
 
     public void delete(Long chapterId) {
@@ -123,7 +127,7 @@ public class ChapterService {
                 chapterCDO = new ChapterCDO(byIdAndIsDeletedFalse);
             }
         }
-        List<SourceTargetProjection> termList = userGlossaryRepository.findByNovelId(chapterCDO.getNovelId());
+        List<SourceTargetProjection> termList = loadGlossaryTerms(chapterCDO.getNovelId());
         Map<String, String> map = termList.stream()
                 .collect(Collectors.toMap(SourceTargetProjection::getSourceName,
                         SourceTargetProjection::getTargetName,
@@ -202,7 +206,17 @@ public class ChapterService {
     private static final String HOST_SERVER_NAME = "host1";
     
     public ChapterCDO findByIdAndIsDeletedFalse(Long id) {
-        Optional<ChapterSync> chapterSync = chapterSyncRepository.findByChapterId(id);
+        Optional<ChapterSync> chapterSync;
+        try {
+            chapterSync = chapterSyncRepository.findByChapterId(id);
+        } catch (InvalidDataAccessResourceUsageException exception) {
+            if (isReaderModeMissingChapterSync(exception)) {
+                log.warn("reader mode missing chapter_sync table, fallback to primary chapter read. chapterId={}", id);
+                chapterSync = Optional.empty();
+            } else {
+                throw exception;
+            }
+        }
         Chapter chapter = chapterRepository.findByIdAndIsDeletedFalse(id);
         
         if (chapter == null) {
@@ -263,7 +277,7 @@ public class ChapterService {
 //        byIdAndIsDeletedFalse.setContent(StringEncoder.cleanText(byIdAndIsDeletedFalse.getContent()));
 //        ChapterCDO chapterCDO = new ChapterCDO(byIdAndIsDeletedFalse);
         ChapterCDO chapterCDO = findByIdAndIsDeletedFalse(id);
-        List<SourceTargetProjection> termList = userGlossaryRepository.findByNovelId(chapterCDO.getNovelId());
+        List<SourceTargetProjection> termList = loadGlossaryTerms(chapterCDO.getNovelId());
         Map<String, String> map = termList.stream()
                 .collect(Collectors.toMap(SourceTargetProjection::getSourceName,
                         SourceTargetProjection::getTargetName,
@@ -423,7 +437,45 @@ public class ChapterService {
     }
 
     public List<UserIdUsernameDTO> findAllContentVersion(Long chapterId) {
-        return userChapterEditRepository.findUserIdAndUsernameByNovelIdAndChapterId(chapterId);
+        try {
+            return userChapterEditRepository.findUserIdAndUsernameByNovelIdAndChapterId(chapterId);
+        } catch (InvalidDataAccessResourceUsageException exception) {
+            if (isReaderModeMissingUserChapterEdit(exception)) {
+                log.warn("reader mode missing user_chapter_edit table, fallback to no content versions. chapterId={}", chapterId);
+                return List.of();
+            }
+            throw exception;
+        }
+    }
+
+    private boolean isReaderModeMissingUserChapterEdit(InvalidDataAccessResourceUsageException exception) {
+        return "reader".equalsIgnoreCase(appUiMode)
+                && exception.getMessage() != null
+                && exception.getMessage().contains("user_chapter_edit");
+    }
+
+    private boolean isReaderModeMissingChapterSync(InvalidDataAccessResourceUsageException exception) {
+        return "reader".equalsIgnoreCase(appUiMode)
+                && exception.getMessage() != null
+                && exception.getMessage().contains("chapter_sync");
+    }
+
+    private List<SourceTargetProjection> loadGlossaryTerms(Long novelId) {
+        try {
+            return userGlossaryRepository.findByNovelId(novelId);
+        } catch (InvalidDataAccessResourceUsageException exception) {
+            if (isReaderModeMissingUserGlossary(exception)) {
+                log.warn("reader mode missing user_glossary table, fallback to no glossary terms. novelId={}", novelId);
+                return List.of();
+            }
+            throw exception;
+        }
+    }
+
+    private boolean isReaderModeMissingUserGlossary(InvalidDataAccessResourceUsageException exception) {
+        return "reader".equalsIgnoreCase(appUiMode)
+                && exception.getMessage() != null
+                && exception.getMessage().contains("user_glossary");
     }
 
     public void saveModifyContent(User user, Note note) {

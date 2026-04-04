@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.security.SecureRandom;
+import java.util.Locale;
 
 /**
  * 数据库初始化器
@@ -29,9 +31,23 @@ import java.security.SecureRandom;
 public class DatabaseInitializer implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(DatabaseInitializer.class);
+    private static final List<String> READER_REQUIRED_TABLES = List.of(
+            "chapter", "chapter_comment", "comment", "credential", "dictionary",
+            "favorites", "favorite_groups", "invitation_code", "notes", "novel",
+            "novel_chapter", "novel_tag", "reading_record", "tag", "user");
+    private static final List<String> MAINTAINER_REQUIRED_TABLES = List.of(
+            "chapter_error_execute", "chapter_execute", "chapter_image_links",
+            "chapter_sync", "chapter_updates", "message", "novel_download_limit",
+            "platform", "platform_api_key", "post", "post_agree", "post_comment",
+            "request_log", "terminology", "user_access_logs", "user_blacklist",
+            "user_chapter_edit", "user_feedback", "user_glossary",
+            "user_novel_relation", "user_operation_log", "user_tag_filter");
 
     private final DataSource primaryDataSource;
     private final DataSource secondaryDataSource;
+
+    @Value("${app.ui.mode:reader}")
+    private String appUiMode;
 
     /**
      * 构造函数注入数据源
@@ -54,7 +70,7 @@ public class DatabaseInitializer implements CommandLineRunner {
         initializePrimaryDatabase();
 
         // 初始化从数据库(如果配置了双数据库模式)
-        if (secondaryDataSource != null) {
+        if (shouldInitializeSecondaryDatabase()) {
             initializeSecondaryDatabase();
         }
 
@@ -72,22 +88,10 @@ public class DatabaseInitializer implements CommandLineRunner {
      */
     private void initializePrimaryDatabase() {
         try (Connection conn = primaryDataSource.getConnection()) {
-            log.info("检查主数据库表结构...");
+            List<String> requiredTables = getRequiredPrimaryTables(appUiMode);
+            log.info("检查主数据库表结构... mode={}, requiredTableCount={}", normalizeAppMode(appUiMode), requiredTables.size());
 
             List<String> missingTables = new ArrayList<>();
-
-            // 检查所有必需的表
-            String[] requiredTables = {
-                    "chapter", "chapter_comment", "chapter_error_execute", "chapter_execute",
-                    "chapter_image_links", "chapter_sync", "chapter_updates", "comment",
-                    "credential", "dictionary", "favorites", "favorite_groups",
-                    "invitation_code", "message", "notes", "novel", "novel_chapter",
-                    "novel_download_limit", "novel_tag", "platform", "platform_api_key",
-                    "post", "post_agree", "post_comment", "reading_record", "request_log",
-                    "tag", "terminology", "user", "user_access_logs", "user_blacklist",
-                    "user_chapter_edit", "user_feedback", "user_glossary",
-                    "user_novel_relation", "user_operation_log", "user_tag_filter"
-            };
 
             for (String tableName : requiredTables) {
                 if (!tableExists(conn, tableName)) {
@@ -139,6 +143,26 @@ public class DatabaseInitializer implements CommandLineRunner {
         try (ResultSet rs = metaData.getTables(null, null, tableName, new String[] { "TABLE" })) {
             return rs.next();
         }
+    }
+
+    static List<String> getRequiredPrimaryTables(String appUiMode) {
+        if ("maintainer".equals(normalizeAppMode(appUiMode))) {
+            List<String> requiredTables = new ArrayList<>(READER_REQUIRED_TABLES);
+            requiredTables.addAll(MAINTAINER_REQUIRED_TABLES);
+            return requiredTables;
+        }
+        return READER_REQUIRED_TABLES;
+    }
+
+    boolean shouldInitializeSecondaryDatabase() {
+        return secondaryDataSource != null;
+    }
+
+    private static String normalizeAppMode(String appUiMode) {
+        if (appUiMode == null || appUiMode.isBlank()) {
+            return "reader";
+        }
+        return appUiMode.trim().toLowerCase(Locale.ROOT);
     }
 
     /**

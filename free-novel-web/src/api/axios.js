@@ -1,6 +1,5 @@
-// src/utils/request.js
 import axios from 'axios';
-import { generateSignature } from '@/utils/signature';
+import { buildAuthorizationHeader } from './requestAuth.mjs';
 
 // 安全的消息显示函数，延迟加载 ElMessage 避免初始化问题
 const showError = (msg) => {
@@ -83,11 +82,9 @@ service.interceptors.request.use((config) => {
         localStorage.removeItem('Authorization');
     }
     const token = localStorage.getItem('Authorization');
-    const SECRET_KEY = token ||
-        'import {computed} from "vue";';
-    if (token) {
-        const headers = generateSignature(config,SECRET_KEY);
-        config.headers.Authorization = token + headers;
+    const authorizationHeader = buildAuthorizationHeader(config, token);
+    if (authorizationHeader) {
+        config.headers.Authorization = authorizationHeader;
     }
     return config;
 });

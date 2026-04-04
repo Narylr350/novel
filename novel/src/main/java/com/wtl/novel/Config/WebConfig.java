@@ -17,6 +17,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired // 自动注入拦截器 Bean
     private SignatureInterceptor signatureInterceptor;
 
+    @Autowired
+    private CorsPolicy corsPolicy;
+
     @Bean
     public List<String> limitUrl() {
         List<String> urls = new ArrayList<>();
@@ -38,11 +41,15 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") // 允许所有路径
-                .allowedOriginPatterns("*") // 允许所有来源（Spring Boot 2.4+ 使用 allowedOriginPatterns 替代 allowedOrigins）
-                .allowedMethods("*") // 允许所有 HTTP 方法（GET、POST 等）
-                .allowedHeaders("*") // 允许所有请求头
-                .allowCredentials(false) // 不允许凭证（若为 true，则 allowedOrigins 不能为 *）
-                .maxAge(3600); // 预检请求缓存时间
+        if (!corsPolicy.hasConfiguredOrigins()) {
+            return;
+        }
+
+        registry.addMapping("/**") // 仅对显式允许的来源开放跨域访问
+                .allowedOriginPatterns(corsPolicy.getAllowedOriginPatterns().toArray(String[]::new))
+                .allowedMethods("*")
+                .allowedHeaders("*")
+                .allowCredentials(false)
+                .maxAge(3600);
     }
 }

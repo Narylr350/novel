@@ -11,7 +11,7 @@
             <li v-if="!isAuthenticated">
               <a href="/login" :class="{ active: activeRoute === '/infoList' }" @click.stop="handleLogin">登录</a>
             </li>
-            <li v-if="isLoginTag">
+            <li v-if="isLoginTag && isMaintainerAppMode">
               <a href="#" :class="{ active: activeRoute === '/' }" @click.stop="urlPush('/')">社区</a>
             </li>
             <li v-if="isLoginTag">
@@ -23,19 +23,19 @@
             <li v-if="isLoginTag">
               <a href="#" :class="{ active: activeRoute === '/search' }" @click.stop="urlPush('/search')">搜索</a>
             </li>
-            <li v-if="isLoginTag">
+            <li v-if="isLoginTag && isMaintainerAppMode">
               <a href="#" :class="{ active: activeRoute === '/uploadNovelDetail' }" @click.stop="uploadNovel">上传</a>
             </li>
-            <li v-if="isLoginTag">
+            <li v-if="isLoginTag && isMaintainerAppMode">
               <a href="#" :class="{ active: activeRoute === '/novelPlatform' }" @click.stop="urlPush('/novelPlatform')">汉化</a>
             </li>
-            <li v-if="isLoginTag">
+            <li v-if="isLoginTag && isMaintainerAppMode">
               <a href="#" :class="{ active: activeRoute === '/messageView' }" @click.stop="urlPush('/messageView')">
                 消息
                 <span v-if="messageNum > 0" class="message-badge">{{ messageNum > 999 ? '999+' : messageNum }}</span>
               </a>
             </li>
-            <li v-if="isLoginTag">
+            <li v-if="isLoginTag && isMaintainerAppMode">
               <a href="#" :class="{ active: activeRoute === '/infoList' }" @click.stop="urlPush('/infoList')">Cookie</a>
             </li>
             <li v-if="isLoginTag">
@@ -56,19 +56,19 @@
                 <div class="menu-item" @click.stop="urlPush('/webHistory')">
                   <span>📝 历史记录</span>
                 </div>
-                <div class="menu-item" @click.stop="urlPush('/tagFilter')">
+                <div v-if="isMaintainerAppMode" class="menu-item" @click.stop="urlPush('/tagFilter')">
                   <span>🏷️ 标签过滤</span>
                 </div>
-                <div class="menu-item" @click.stop="urlPush('/webStore')">
+                <div v-if="isMaintainerAppMode" class="menu-item" @click.stop="urlPush('/webStore')">
                   <span>🪛 积分兑换</span>
                 </div>
-                <div class="menu-item" @click.stop="urlPush('/blacklistPage')">
+                <div v-if="isMaintainerAppMode" class="menu-item" @click.stop="urlPush('/blacklistPage')">
                   <span>😠 拉黑</span>
                 </div>
-                <div class="menu-item" @click.stop="urlPush('/translationConfig')">
+                <div v-if="isMaintainerAppMode" class="menu-item" @click.stop="urlPush('/translationConfig')">
                   <span>⚙️ 翻译配置</span>
                 </div>
-                <div class="menu-item" @click.stop="urlPush('/crawlerManager')">
+                <div v-if="isMaintainerAppMode" class="menu-item" @click.stop="urlPush('/crawlerManager')">
                   <span>🕷️ 爬虫管理</span>
                 </div>
                 <div class="menu-item" @click.stop="logout">
@@ -91,6 +91,7 @@
 
 <script>
 import service from "@/api/axios";
+import { isMaintainerMode } from "./config/appMode.mjs";
 export default {
   name: 'NovelApp',
   data() {
@@ -104,6 +105,11 @@ export default {
       showApp: true,
       hideSearch: true,
     };
+  },
+  computed: {
+    isMaintainerAppMode() {
+      return isMaintainerMode();
+    }
   },
   watch: {
     $route(to) {
@@ -119,6 +125,10 @@ export default {
   },
   methods: {
     async getMessageNum(){
+        if (!this.isMaintainerAppMode) {
+          this.messageNum = 0;
+          return;
+        }
         const response = await service.get(`/api/msg/getMessage?read=false&page=0&size=1`);
         const data = await response.data;
         this.messageNum = data.totalElements;
@@ -127,8 +137,10 @@ export default {
       service.get(`/api/auth/isLogin`)
           .then(response => {
             this.isLoginTag = response.data; // 假设后端返回的是搜索结果列表
-            if (this.isLoginTag) {
+            if (this.isLoginTag && this.isMaintainerAppMode) {
               this.getMessageNum()
+            } else {
+              this.messageNum = 0;
             }
           })
           .catch(() => {

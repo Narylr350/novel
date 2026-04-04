@@ -222,12 +222,10 @@ public class NovelController {
     @PostMapping("/getNovelsByPlatform")
     public Page<NovelCTO> getNovelsByPlatform(
             @RequestBody NovelSearchRequest request,HttpServletRequest httpRequest) throws Exception {
-        String[] authorizationInfo = httpRequest.getHeader("Authorization").split(";");
-        String authorizationHeader = authorizationInfo[0];
-        Credential credential = credentialService.findByToken(authorizationHeader);
-        User user = credential.getUser();
+        Credential credential = resolveCredential(httpRequest);
+        User user = credential != null ? credential.getUser() : null;
         String direction = request.getSort();
-        Long userId = user.getId();
+        Long userId = user != null ? user.getId() : null;
         String sort = request.getDirection();
         if (!((direction.equals("up") || direction.equals("novelLike")|| direction.equals("createdAt")|| direction.equals("updatedAt") || direction.equals("recommend") || direction.equals("novelRead")) && (sort.equals("asc") || sort.equals("desc")))) {
             System.out.println("userId:" + userId + "尝试入侵服务器的日志已记录");
@@ -241,10 +239,10 @@ public class NovelController {
                 request.getPlatform(),
                 request.getFontNumber(),
                 request.getTabIds(),
-                pageable, credential.getUser().getId());
+                pageable, userId);
 
 
-        if (user.getHideReadBooks()) {
+        if (user != null && Boolean.TRUE.equals(user.getHideReadBooks())) {
             List<ReadingRecord> readingRecords = readingRecordRepository.findByUserId(user.getId());
 
             Set<Long> readNovelIds = readingRecords.stream()
@@ -270,6 +268,26 @@ public class NovelController {
 
         // 调用服务层方法
         return novelsWithPagination;
+    }
+
+    private Credential resolveCredential(HttpServletRequest httpRequest) {
+        String authorization = httpRequest.getHeader("Authorization");
+        if (authorization == null || authorization.isBlank()) {
+            return null;
+        }
+
+        String[] authorizationInfo = authorization.split(";");
+        if (authorizationInfo.length == 0 || authorizationInfo[0] == null || authorizationInfo[0].isBlank()) {
+            return null;
+        }
+
+        // Reader-mode book browsing must keep working before login, so missing or expired
+        // credentials downgrade to anonymous access instead of crashing the controller.
+        Credential credential = credentialService.findByToken(authorizationInfo[0]);
+        if (credential == null || credential.getExpiredAt() == null || credential.getExpiredAt().isBefore(LocalDateTime.now())) {
+            return null;
+        }
+        return credential;
     }
 
     /**

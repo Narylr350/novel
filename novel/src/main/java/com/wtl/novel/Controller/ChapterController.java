@@ -14,7 +14,11 @@ import com.wtl.novel.repository.UserRepository;
 import com.wtl.novel.util.QuoteModifier;
 import com.wtl.novel.util.SignatureUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +32,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/chapters")
 public class ChapterController {
+    private static final Logger log = LoggerFactory.getLogger(ChapterController.class);
 
     @Autowired
     private ChapterService chapterService;
@@ -49,6 +54,8 @@ public class ChapterController {
 
     @Autowired
     private DictionaryRepository dictionaryRepository;
+    @Value("${app.ui.mode:reader}")
+    private String appUiMode;
 
 
 
@@ -101,10 +108,7 @@ public class ChapterController {
         requestCount(credential);
 
         ChapterCDO chapterById = chapterService.findChapterById(id, credential.getUser().getId());
-        StringBuilder sb = new StringBuilder(credential.getToken());
-        // 调用 reverse() 方法反转字符串
-        String reversed = sb.reverse().toString();
-        chapterById.setContent(SignatureUtils.encrypt(chapterById.getContent(), reversed));
+        encryptChapterContentIfPresent(chapterById, credential);
         Dictionary fontVersion = dictionaryRepository.getDictionaryByKeyField("fontVersion");
         chapterById.setFontMapVersion(Integer.valueOf(fontVersion.getValueField()));
         List<TextNumCount> textNumCounts = chapterCommentService.countByChapterIdGroupByTextNum(id);
@@ -161,26 +165,54 @@ public class ChapterController {
         requestCount(credential);
 
         ChapterCDO chapterById = chapterService.getChapterByVersion(id, userId, credential.getUser().getId());
-        StringBuilder sb = new StringBuilder(credential.getToken());
-        // 调用 reverse() 方法反转字符串
-        String reversed = sb.reverse().toString();
-        chapterById.setContent(SignatureUtils.encrypt(chapterById.getContent(), reversed));
+        encryptChapterContentIfPresent(chapterById, credential);
         Dictionary fontVersion = dictionaryRepository.getDictionaryByKeyField("fontVersion");
         chapterById.setFontMapVersion(Integer.valueOf(fontVersion.getValueField()));
         return chapterById;
     }
 
+    private void encryptChapterContentIfPresent(ChapterCDO chapterById, Credential credential) throws Exception {
+        if (chapterById.getContent() == null || chapterById.getContent().isEmpty()) {
+            chapterById.setContent("");
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder(credential.getToken());
+        String reversed = sb.reverse().toString();
+        chapterById.setContent(SignatureUtils.encrypt(chapterById.getContent(), reversed));
+    }
+
     public void requestCount(Credential credential) {
         LocalDateTime todayStart = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
-        RequestLog requestLog = requestLogRepository.findByCredentialIdAndRequestTimeAfter(
-                credential.getId(),
-                todayStart
-        );
+        RequestLog requestLog;
+        try {
+            requestLog = requestLogRepository.findByCredentialIdAndRequestTimeAfter(
+                    credential.getId(),
+                    todayStart
+            );
+        } catch (InvalidDataAccessResourceUsageException exception) {
+            if (isReaderModeMissingRequestLog(exception)) {
+                // Lite reader packages do not ship request_log, so reader mode skips
+                // the bonus-count side effect instead of blocking chapter reads.
+                log.warn("reader mode chapter reward counting skipped because request_log is absent");
+                return;
+            }
+            throw exception;
+        }
+        if (requestLog == null) {
+            return;
+        }
         int requestLogCount = Integer.parseInt(dictionaryRepository.findDictionaryByKeyFieldAndIsDeletedFalse("requestLogCount").getValueField());
         if (requestLog.getCount() == requestLogCount) {
             credential.getUser().setPoint(credential.getUser().getPoint() + 5);
             userRepository.save(credential.getUser());
         }
+    }
+
+    private boolean isReaderModeMissingRequestLog(InvalidDataAccessResourceUsageException exception) {
+        return "reader".equalsIgnoreCase(appUiMode)
+                && exception.getMessage() != null
+                && exception.getMessage().contains("request_log");
     }
 
     @GetMapping("/upload/{id}")

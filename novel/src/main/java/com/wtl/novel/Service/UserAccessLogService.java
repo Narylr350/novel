@@ -2,6 +2,10 @@ package com.wtl.novel.Service;
 
 import com.wtl.novel.entity.UserAccessLog;
 import com.wtl.novel.repository.UserAccessLogRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
@@ -15,8 +19,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserAccessLogService {
+    private static final Logger log = LoggerFactory.getLogger(UserAccessLogService.class);
 
     private final UserAccessLogRepository repository;
+    @Value("${app.ui.mode:reader}")
+    private String appUiMode;
 
     public UserAccessLogService(UserAccessLogRepository repository) {
         this.repository = repository;
@@ -31,7 +38,18 @@ public class UserAccessLogService {
         userLock.lock(); // 加锁（同一user_id在此排队）
         try {
             LocalDate now = LocalDate.now();
-            List<UserAccessLog> userAccessLogs = repository.findByUserIdAndVisitDate(userId, now);
+            List<UserAccessLog> userAccessLogs;
+            try {
+                userAccessLogs = repository.findByUserIdAndVisitDate(userId, now);
+            } catch (InvalidDataAccessResourceUsageException exception) {
+                if (isReaderModeMissingUserAccessLogs(exception)) {
+                    // Lite reader packages intentionally omit user_access_logs. Skip
+                    // visit tracking there so authenticated reading APIs still work.
+                    log.warn("Reader mode user access logging skipped because user_access_logs is absent");
+                    return;
+                }
+                throw exception;
+            }
 
             if (!userAccessLogs.isEmpty()) {
                 // 更新现有记录
@@ -50,6 +68,12 @@ public class UserAccessLogService {
         } finally {
             userLock.unlock(); // 必须确保解锁
         }
+    }
+
+    private boolean isReaderModeMissingUserAccessLogs(InvalidDataAccessResourceUsageException exception) {
+        return "reader".equalsIgnoreCase(appUiMode)
+                && exception.getMessage() != null
+                && exception.getMessage().contains("user_access_logs");
     }
 
     // 工具方法：更新IP和UserAgent集合

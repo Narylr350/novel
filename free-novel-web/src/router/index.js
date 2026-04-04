@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import {containsChinese, getTitleText, getTitleText1, getTitleText2} from "@/api/axios";
 import {ElMessage} from "element-plus";
+import { getAppMode, resolveAppModeRouteTarget } from '../config/appMode.mjs';
 const WebLibrary = () => import(/* webpackChunkName: "FeedBack" */ '../components/WebLibrary.vue')
 const WebSearch = () => import(/* webpackChunkName: "FeedBack" */ '../components/WebSearch.vue')
 const WebFavorites = () => import(/* webpackChunkName: "FeedBack" */ '../components/WebFavorites.vue')
@@ -38,6 +39,7 @@ const routes = [
         path: '/infoList',
         name: 'InfoList',
         component: InfoList,
+        meta: { appMode: 'maintainer' }
     },
     {
         path: '/webLibraryNp',
@@ -48,13 +50,13 @@ const routes = [
         path: '/writerDetail/:id',
         name: 'WriterDetail',
         component: WriterDetail,
-        meta: { hideApp: true }
+        meta: { hideApp: true, appMode: 'maintainer' }
     },
     {
         path: '/userGlossaryPage/:id',
         name: 'UserGlossaryPage',
         component: UserGlossaryPage,
-        meta: { hideApp: true }
+        meta: { hideApp: true, appMode: 'maintainer' }
     },
     {
         path: '/webLibrary',
@@ -65,22 +67,25 @@ const routes = [
         path: '/blacklistPage',
         name: 'BlacklistPage',
         component: BlacklistPage,
+        meta: { appMode: 'maintainer' }
     },
     {
         path: '/messageView',
         name: 'MessageView',
         component: MessageView,
+        meta: { appMode: 'maintainer' }
     },
     {
         path: '/webStore',
         name: 'WebStore',
         component: WebStore,
+        meta: { appMode: 'maintainer' }
     },
     {
         path: '/glossaryPage/:id',
         name: 'GlossaryPage',
         component: GlossaryPage,
-        meta: { hideApp: true }
+        meta: { hideApp: true, appMode: 'maintainer' }
     },
     {
         path: '/modifyPassword',
@@ -97,53 +102,55 @@ const routes = [
         path: '/uploadNovelDetail',
         name: 'UploadNovelDetail',
         component: UploadNovelDetail,
-        meta: { hideSearch: true }
+        meta: { hideSearch: true, appMode: 'maintainer' }
     },
     {
         path: '/uploadNovelEdit/:id',
         name: 'UploadNovelEdit',
         component: UploadNovelEdit,
-        meta: { hideSearch: true }
+        meta: { hideSearch: true, appMode: 'maintainer' }
     },
     {
         path: '/uploadChapterAdmin/:id',
         name: 'UploadChapterAdmin',
         component: UploadChapterAdmin,
-        meta: { hideSearch: true }
+        meta: { hideSearch: true, appMode: 'maintainer' }
     },
     {
         path: '/tagFilter',
         name: 'TagFilter',
         component: TagFilter,
+        meta: { appMode: 'maintainer' }
     },
     {
         path: '/uploadChapterEdit/:id',
         name: 'UploadChapterEdit',
         component: UploadChapterEdit,
-        meta: { hideApp: true }
+        meta: { hideApp: true, appMode: 'maintainer' }
     },
     {
         path: '/uploadAndShare',
         name: 'UploadAndShare',
         component: UploadAndShare,
-        meta: { hideSearch: true }
+        meta: { hideSearch: true, appMode: 'maintainer' }
     },
     {
         path: '/syosetuNovel',
         name: 'SyosetuNovel',
         component: SyosetuNovel,
-        meta: { hideSearch: true }
+        meta: { hideSearch: true, appMode: 'maintainer' }
     },
     {
         path: '/novelPiaNovel',
         name: 'NovelPiaNovel',
         component: NovelPiaNovel,
-        meta: { hideSearch: true }
+        meta: { hideSearch: true, appMode: 'maintainer' }
     },
     {
         path: '/novelPlatform',
         name: 'WebNovelPlatform',
         component: WebNovelPlatform,
+        meta: { appMode: 'maintainer' }
     },
     {
         path: '/noteDetail/:id',
@@ -161,6 +168,7 @@ const routes = [
         path: '/',
         name: 'RecommendationList',
         component: RecommendationList,
+        meta: { appMode: 'maintainer' }
     },
     {
         path: '/recommendationDetail/:id',
@@ -202,11 +210,13 @@ const routes = [
         path: '/translationConfig',
         name: 'TranslationConfig',
         component: TranslationConfig,
+        meta: { appMode: 'maintainer' }
     },
     {
         path: '/crawlerManager',
         name: 'CrawlerManager',
         component: CrawlerManager,
+        meta: { appMode: 'maintainer' }
     },
 ];
 
@@ -223,6 +233,13 @@ router.beforeEach((to, from, next) => {
         ElMessage.error("system error")
         return Promise.reject(new Error('system error'));
     }
+
+    const appModeRedirect = resolveAppModeRouteTarget(to, getAppMode());
+    if (appModeRedirect) {
+        next(appModeRedirect);
+        return;
+    }
+
     const token = localStorage.getItem('Authorization');
     if ((!token || token === 'undefined') && (!isExists(to.name))) {
         next({ name: 'WebLogin' }); // 如果未登录或 token 无效，跳转到登录页面

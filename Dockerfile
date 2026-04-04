@@ -1,5 +1,5 @@
-# 前端构建
-FROM node:18-alpine AS frontend-builder
+# Frontend build
+FROM node:20-alpine AS frontend-builder
 
 WORKDIR /frontend
 
@@ -10,8 +10,8 @@ COPY free-novel-web/ ./
 
 RUN npm run build
 
-# 服务端构建
-FROM maven:3.9-eclipse-temurin-17 AS backend-builder
+# Backend build
+FROM maven:3.9-eclipse-temurin-21 AS backend-builder
 
 WORKDIR /app
 
@@ -25,7 +25,7 @@ COPY --from=frontend-builder /frontend/dist/ ./src/main/resources/static/
 
 RUN mvn clean package -DskipTests -Pdev
 
-FROM eclipse-temurin:17-jdk
+FROM eclipse-temurin:21-jre
 
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 

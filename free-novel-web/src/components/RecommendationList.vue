@@ -184,7 +184,7 @@
           background
           :layout="paginationLayout"
           :total="totalPosts"
-          :pager-count="3"
+          :pager-count="5"
           :current-page="currentPage"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
@@ -197,6 +197,7 @@
 <script>
 import service from "@/api/axios";
 import { ElPagination, ElSelect, ElOption, ElInput, ElMessage } from 'element-plus';
+import { buildRequestErrorMessage } from '@/utils/requestErrorMessage.mjs';
 
 const DEFAULT_POST_OBJECT = {
   title: '',
@@ -386,7 +387,7 @@ export default {
         this.totalPosts = response.data.totalElements;
       } catch (error) {
         console.error('Error fetching posts:', error);
-        ElMessage.error('帖子加载失败',error);
+        ElMessage.error(buildRequestErrorMessage('帖子加载失败', error));
       } finally {
         this.restoreScrollPosition();
       }

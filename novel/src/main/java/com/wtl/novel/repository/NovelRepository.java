@@ -133,6 +133,11 @@ public interface NovelRepository extends JpaRepository<Novel, Long> {
     @Query(value = "SELECT * FROM novel WHERE is_deleted = 0 ORDER BY RAND() LIMIT 1", nativeQuery = true)
     Novel findRandomNovel();
 
+    @Query("SELECT DISTINCT n.platform FROM Novel n " +
+            "WHERE n.isDeleted = false AND n.platform IS NOT NULL AND n.platform <> '' " +
+            "ORDER BY n.platform")
+    List<String> findDistinctPlatforms();
+
     @Query("select n from Novel n where n.trueId in :trueIds")
     List<Novel> findAllByTrueIdIn(@Param("trueIds") Collection<String> trueIds);
 

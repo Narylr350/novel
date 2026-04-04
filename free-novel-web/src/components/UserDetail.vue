@@ -19,6 +19,7 @@
         个人资料
       </div>
       <div
+        v-if="isMaintainerAppMode"
         class="tab-item"
         :class="{ active: activeTab === 'posts' }"
         @click="activeTab = 'posts'"
@@ -26,6 +27,7 @@
         我的书帖
       </div>
       <div
+        v-if="isMaintainerAppMode"
         class="tab-item"
         :class="{ active: activeTab === 'Cookie' }"
         @click="activeTab = 'Cookie'"
@@ -295,8 +297,14 @@
 // The user's original code had these imports. We assume they exist.
 import service from "@/api/axios";
 import { ElMessage } from "element-plus";
+import { isMaintainerMode } from "../config/appMode.mjs";
 
 export default {
+  computed: {
+    isMaintainerAppMode() {
+      return isMaintainerMode();
+    }
+  },
   data() {
     const validatePass = (rule, value, callback) => {
       if (value === '') {
@@ -374,6 +382,10 @@ export default {
   watch: {
     // 监听 activeTab 的变化，加载对应数据
     activeTab(newTab) {
+      if (!this.isMaintainerAppMode && (newTab === 'posts' || newTab === 'Cookie')) {
+        this.activeTab = 'profile';
+        return;
+      }
       if (newTab === 'posts') {
         this.resetAndFetchPosts();
       } else if(newTab === 'Cookie') {
@@ -387,8 +399,6 @@ export default {
   mounted() {
     this.fetchFavorites();
     this.getInviteCode();
-    // 默认加载个人资料
-    this.resetAndFetchPosts();
     const tabsContainer = this.$refs.tabsContainer;
     if (tabsContainer) {
       tabsContainer.addEventListener('wheel', this.handleWheel);

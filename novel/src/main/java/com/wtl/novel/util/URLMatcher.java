@@ -24,7 +24,20 @@ public class URLMatcher {
 //            "^/api/tag/getTagsByNovelId/\\d+$", // 匹配 /api/tag/getTagsByNovelId/数字
 //            "^/api/favorites/user/\\d+/[a-zA-Z]+$", // 匹配 /api/favorites/user/数字/字符
 //            "^/api/novels/getNovelsByPlatform/[^/]+/\\d+/[^/]+/\\d+/\\d+$", // 匹配 /api/novels/getNovelsByPlatform/任意非斜杠字符/数字/任意非斜杠字符/数字/数字
-            "^/api/auth/login$", // 匹配 /api/auth
+            // Allow login-screen bootstrap and reader homepage metadata before authentication.
+            "^/api/auth/login$",
+            "^/api/auth/isLogin$",
+            "^/api/auth/app-mode$",
+            "^/api/platform/novel$",
+            "^/api/dic/getHome$",
+            "^/api/tag/all/[^/]+$",
+            "^/api/tag/all/[^/]+/[^/]+$",
+            "^/api/novels/getNovelsByPlatform$",
+            "^/api/novels/\\d+$",
+            "^/api/chapters/getChaptersByNovelId/\\d+$",
+            "^/api/tag/getTagsAllInfoByNovelId/\\d+$",
+            "^/api/posts/getAllPostsByNovelId$",
+            "^/api/favorites/user/\\d+/[^/]+$",
             "^/test/test3$", // 匹配 /api/auth
 //            "^/api/posts/getPosts$", // 匹配 /api/posts/getPosts?查询参数
 //            "^/api/posts/\\d+$", // 匹配 /api/posts/数字

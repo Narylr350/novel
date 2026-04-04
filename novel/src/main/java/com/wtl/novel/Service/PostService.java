@@ -9,7 +9,11 @@ import com.wtl.novel.repository.NovelRepository;
 import com.wtl.novel.repository.PostCommentRepository;
 import com.wtl.novel.repository.PostRepository;
 import com.wtl.novel.repository.UserBlacklistRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class PostService {
+    private static final Logger log = LoggerFactory.getLogger(PostService.class);
 
     @Autowired
     private PostRepository postRepository;
@@ -32,6 +37,9 @@ public class PostService {
     private UserBlacklistRepository userBlacklistRepository;
     @Autowired
     private NovelRepository novelRepository;
+
+    @Value("${app.ui.mode:reader}")
+    private String appUiMode;
 
     public void incrementCommentNum(Long postId) {
         postRepository.incrementCommentNumById(postId);
@@ -98,7 +106,17 @@ public class PostService {
     }
 
     public Page<PostCTO> getAllPostsByNovelId(Long novelId, Pageable pageable) {
-        Page<Post> byPostType = postRepository.findByPostTypeAndNovelId(novelId, pageable);
+        Page<Post> byPostType;
+        try {
+            byPostType = postRepository.findByPostTypeAndNovelId(novelId, pageable);
+        } catch (InvalidDataAccessResourceUsageException ex) {
+            if (isReaderModeMissingPostTable(ex)) {
+                // Lite reader packages do not preload community post tables.
+                log.warn("reader mode missing post table, fallback to empty novel comments. novelId={}", novelId);
+                return Page.empty(pageable);
+            }
+            throw ex;
+        }
 
         // 提取 Post 的 collections 字段
         List<Long> idList = new ArrayList<>();
@@ -183,5 +201,11 @@ public class PostService {
             postCommentRepository.deleteAllByPostId(id);
             postRepository.deleteById(id);
         }
+    }
+
+    private boolean isReaderModeMissingPostTable(InvalidDataAccessResourceUsageException ex) {
+        return "reader".equalsIgnoreCase(appUiMode)
+                && ex.getMessage() != null
+                && ex.getMessage().contains("post");
     }
 }

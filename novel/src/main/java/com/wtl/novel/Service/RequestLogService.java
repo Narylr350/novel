@@ -4,7 +4,11 @@ import com.wtl.novel.entity.Credential;
 import com.wtl.novel.entity.RequestLog;
 import com.wtl.novel.repository.DictionaryRepository;
 import com.wtl.novel.repository.RequestLogRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,12 +18,16 @@ import java.util.regex.Pattern;
 
 @Service
 public class RequestLogService {
+    private static final Logger log = LoggerFactory.getLogger(RequestLogService.class);
+
     @Autowired
     private RequestLogRepository requestLogRepository;
     @Autowired
     private DictionaryRepository dictionaryRepository;
     @Autowired
     private List<String> limitUrl;
+    @Value("${app.ui.mode:reader}")
+    private String appUiMode;
 
     // 编译一个正则表达式模式，用于匹配 /chapters/ 后跟一个数字 ID
     public static final Pattern CHAPTERS_ID_PATTERN = Pattern.compile("^/api/chapters/\\d+$");
@@ -38,10 +46,21 @@ public class RequestLogService {
     public boolean checkRequestLimit(Credential credential, String requestURI) {
         int limitRequest = Integer.parseInt(dictionaryRepository.findDictionaryByKeyFieldAndIsDeletedFalse("limitRequest").getValueField());
         LocalDateTime todayStart = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
-        RequestLog requestLog = requestLogRepository.findByCredentialIdAndRequestTimeAfter(
-                credential.getId(),
-                todayStart
-        );
+        RequestLog requestLog;
+        try {
+            requestLog = requestLogRepository.findByCredentialIdAndRequestTimeAfter(
+                    credential.getId(),
+                    todayStart
+            );
+        } catch (InvalidDataAccessResourceUsageException exception) {
+            if (isReaderModeMissingRequestLog(exception)) {
+                // Lite reader packages intentionally omit request_log. Reader mode treats
+                // that table as optional so protected reading flows can still work.
+                log.warn("Reader mode request limit check skipped because request_log is absent");
+                return true;
+            }
+            throw exception;
+        }
 
         if (requestLog == null) {
             synchronized (this) {
@@ -67,5 +86,11 @@ public class RequestLogService {
             requestLogRepository.save(requestLog);
         }
         return true;
+    }
+
+    private boolean isReaderModeMissingRequestLog(InvalidDataAccessResourceUsageException exception) {
+        return "reader".equalsIgnoreCase(appUiMode)
+                && exception.getMessage() != null
+                && exception.getMessage().contains("request_log");
     }
 }

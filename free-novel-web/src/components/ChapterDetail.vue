@@ -465,7 +465,12 @@
 import service from "@/api/axios";
 import {ref} from 'vue';
 import {ElMessage} from "element-plus";
-import {cryptoUtils} from "@/utils/signature";
+import {
+  buildContentVersions,
+  normalizeNotesPayload,
+  resolveChapterRequest,
+} from "@/utils/chapterDetailPayloads.mjs";
+import { decryptChapterContent } from "@/utils/chapterCrypto.mjs";
 import CommentDialog from '@/components/CommentDialog.vue'
 export default {
   name: 'ChapterDetail',
@@ -586,15 +591,11 @@ export default {
     document.addEventListener('selectionchange', this.getMinKeyInSelection);
     this.$nextTick(() => {
     const tn = Number(this.$route.query.tn)
-    
-        console.log("tn",tn);
 
     if (!tn) return
     // ③ 等渲染完再跳
     this.$nextTick(() => {
         const target = document.querySelector(`p[data-key="${tn}"]`)
-        console.log(target);
-        
         if (target) {
           target.scrollIntoView({ behavior: 'smooth', block: 'center' })
           // 如果想高亮 1 秒，可加下面两行
@@ -703,15 +704,21 @@ mounted() {
     },
     loadVersionUserId(){
       localStorage.setItem('selectedVersionUserId', this.selectedVersionUserId)
-      this.getChapterByVersion(this.selectedVersionUserId)
+      const chapterRequest = resolveChapterRequest(this.selectedVersionUserId, this.allContentVersion);
+      this.selectedVersionUserId = chapterRequest.versionUserId;
+
+      if (chapterRequest.type === 'version') {
+        this.getChapterByVersion(chapterRequest.versionUserId)
+        return;
+      }
+
+      this.getOriginalChapter(this.$route.params.id);
     },
     async findAllContentVersion() {
       const response = await service.get(`/api/chapters/findAllContentVersion/${this.$route.params.id}`);
-      this.allContentVersion = [
-        { userId: 0, username: '原版本' },
-        ...response.data
-      ];
-      this.ContentVersionNum = response.data.length
+      const versions = Array.isArray(response.data) ? response.data : [];
+      this.allContentVersion = buildContentVersions(versions);
+      this.ContentVersionNum = versions.length
       // 不加 await 会返回 Promise，外面才能拿到
     },
     async deleteAllCustomFonts() {
@@ -1015,53 +1022,57 @@ mounted() {
       this.showNotesPanel = !this.showNotesPanel;
       this.getNotes();
     },
+    getOriginalChapter(id) {
+      this.isFontLoaded = false;
+      this.isLoading = true;
+      service.get(`/api/chapters/getChapterByIdApi/${id}`)
+        .then(response => {
+          this.chapter = response.data;
+          if (this.chapter.content) {
+            let item = localStorage.getItem("Authorization");
+            const reversed = item.split('').reverse().join('');
+            this.chapter.content = decryptChapterContent(this.chapter.content, reversed);
+            this.newfontMapVersion = this.chapter.fontMapVersion
+            this.loadFontFromIndexedDB();
+            this.chapter.content = this.chapter.content
+                .split('\n')
+                .map(line => line.trim())
+                .filter(line => (line !== '' && line !== '\n'))
+                .join('\n');
+            this.textNumCounts = new Map()
+            this.chapter.textNumCounts.forEach(item => this.textNumCounts.set(item.textNum, item.cnt))
+              // ② 强制让 Vue 先渲染完 DOM
+
+              this.$nextTick().then(() => {
+              this.jumpToParagraph()
+            })
+            
+          } else {
+            this.chapter.content = '';
+          }
+          this.prevChapterId = this.chapter.preId;
+          this.nextChapterId = this.chapter.nextId;
+          this.novelId = this.chapter.novelId;
+          this.isLoad = true;
+          this.isLoading = false;
+        })
+        .catch(error => {
+          console.error('Error fetching chapter:', error);
+          this.isLoad = true;
+          this.isLoading = false;
+        });
+    },
     async fetchChapter(id) {
       await this.findAllContentVersion()
-      if (this.allContentVersion.some(item => item.userId === this.selectedVersionUserId)) {
-        this.getChapterByVersion(this.selectedVersionUserId)
-      }else {
-        this.selectedVersionUserId = 0
-        
-        this.isFontLoaded = false;
-        this.isLoading = true;
-        service.get(`/api/chapters/getChapterByIdApi/${id}`)
-          .then(response => {
-            this.chapter = response.data;
-            if (this.chapter.content) {
-              let item = localStorage.getItem("Authorization");
-              const reversed = item.split('').reverse().join('');
-              this.chapter.content = cryptoUtils.decrypt(this.chapter.content, reversed);
-              this.newfontMapVersion = this.chapter.fontMapVersion
-              this.loadFontFromIndexedDB();
-              this.chapter.content = this.chapter.content
-                  .split('\n')
-                  .map(line => line.trim())
-                  .filter(line => (line !== '' && line !== '\n'))
-                  .join('\n');
-              this.textNumCounts = new Map()
-              this.chapter.textNumCounts.forEach(item => this.textNumCounts.set(item.textNum, item.cnt))
-                // ② 强制让 Vue 先渲染完 DOM
+      const chapterRequest = resolveChapterRequest(this.selectedVersionUserId, this.allContentVersion);
+      this.selectedVersionUserId = chapterRequest.versionUserId
 
-                this.$nextTick().then(() => {
-                this.jumpToParagraph()
-              })
-              
-            } else {
-              this.chapter.content = '';
-            }
-            this.prevChapterId = this.chapter.preId;
-            this.nextChapterId = this.chapter.nextId;
-            this.novelId = this.chapter.novelId;
-            this.isLoad = true;
-            this.isLoading = false;
-          })
-          .catch(error => {
-            console.error('Error fetching chapter:', error);
-            this.isLoad = true;
-            this.isLoading = false;
-          });
+      if (chapterRequest.type === 'version') {
+        this.getChapterByVersion(chapterRequest.versionUserId)
+        return;
       }
-      
+
+      this.getOriginalChapter(id);
     },
     openKeyReplace(){
       this.oldKey = window.getSelection().toString()
@@ -1098,7 +1109,7 @@ mounted() {
             if (this.chapter.content) {
               let item = localStorage.getItem("Authorization");
               const reversed = item.split('').reverse().join('');
-              this.chapter.content = cryptoUtils.decrypt(this.chapter.content, reversed);
+              this.chapter.content = decryptChapterContent(this.chapter.content, reversed);
               this.newfontMapVersion = this.chapter.fontMapVersion
               this.loadFontFromIndexedDB();
               this.chapter.content = this.chapter.content
@@ -1304,7 +1315,7 @@ mounted() {
       let newVar = this.$route.params.id;
       service.get(`/api/notes/chapter/${newVar}`)
           .then(response => {
-            this.notes = response.data.map(item => ({
+            this.notes = normalizeNotesPayload(response.data).map(item => ({
               ...item,
               isSelected: false
             }));
