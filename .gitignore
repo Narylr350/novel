@@ -22,3 +22,19 @@
 /app/file/
 /sql/
 /nul
+
+# AI assistant workflows and caches
+docs/
+.claude/
+.cursor/
+.windsurf/
+.superpowers/
+AI_CONTEXT.md
+CLAUDE.md
+AGENTS.md
+docs/superpowers/
+docs/testing/ai-logs/
+
+# AI-generated temporary files
+*.tmp
+*.log

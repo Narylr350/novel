@@ -1,7 +1,0 @@
-Backend startup failed with exit code -1.
-ËùÔÚÎ»ÖÃ D:\Narylr\FreeNovel\scripts\start-reader-backend.ps1:93 ×Ö·û: 5
-+     throw "Backend startup failed with exit code $LASTEXITCODE."
-+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : OperationStopped: (Backend startup...h exit code -1.:String) [], RuntimeException
-    + FullyQualifiedErrorId : Backend startup failed with exit code -1.
- 
