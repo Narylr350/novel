@@ -223,8 +223,7 @@ export default {
     },
     gotoNovelDetail(book) {
       if (book.novel) {
-        const routeData = this.$router.resolve({ name: 'NovelDetail', params: { id: book.novel.id } });
-        window.open(routeData.href, '_blank');
+        this.$router.push({ name: 'NovelDetail', params: { id: book.novel.id } });
       } else {
         this.requestTranslation(book.trueId);
       }

@@ -16,3 +16,4 @@
 - `tasks/` is organized by real repository boundaries, not a forced fixed template.
 - Module root task folders keep current task records. Historical execution support docs live under `docs/tasks/<module>/history/`.
 - `context/development-roadmap.md` is the master delivery-direction document.
+- Release-era source-package docs are archived under `docs/archive/legacy/release-surface/`.

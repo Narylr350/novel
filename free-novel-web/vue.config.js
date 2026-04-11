@@ -1,5 +1,10 @@
 const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
+    configureWebpack: {
+        performance: {
+            hints: false,
+        },
+    },
     devServer: {
         host: '0.0.0.0', // 允许外部访问
         port: 8080,

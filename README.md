@@ -1,21 +1,57 @@
 # FreeNovel
 
-韩轻小说翻译阅读平台维护仓库，当前工作重点是把遗留项目整理到“能理解、能启动、能维护”的状态，而不是继续堆新功能。
+FreeNovel 是一个面向韩轻小说阅读、采集、翻译和维护运营的项目。
 
-## Current Status
+这个仓库现在主要用于：
+- 源码维护
+- 功能推进
+- 缺陷修复
+- 运行和部署对齐
+
+正式分发已经独立处理，不再依赖仓库内的发布目录或打包说明。
+
+## 下载分发包
+
+如果你只是想直接使用已经整理好的分发版本，不需要先研究源码仓库。
+
+复制下面这段内容后打开百度网盘 App，操作更方便：
+
+```text
+链接:https://pan.baidu.com/s/10yTVZbjWdGdVY3xCT5v4sw?pwd=lupt --来自百度网盘超级会员V5的分享
+```
+
+网页版也可以直接打开：
+- [百度网盘分发链接](https://pan.baidu.com/s/10yTVZbjWdGdVY3xCT5v4sw?pwd=lupt)
+
+说明：
+- 分发包是当前对外使用的主入口
+- 源码仓库不再承担“下载后直接运行的发布包”角色
+- 如果只是部署或试用，优先使用上面的分发包，而不是从仓库根目录找历史发布脚本
+
+## 仓库用途
+
+这个仓库现在服务的是发布后的主线工作，而不是发布阶段清理。
+
+当前重心：
+- 优化读者端体验和核心阅读链路
+- 补强直接支撑内容获取、翻译和运营效率的维护者能力
+- 修复阻塞功能推进的运行时、鉴权、接口和部署问题
+- 保持文档、代码和实际运行方式一致
+
+## 当前技术栈
 
 - 后端：`novel`，Spring Boot 4 + Java 21
 - 前端：`free-novel-web`，Vue 3 + Vue CLI 5
-- 数据：MariaDB，SQL 导入文件位于 `sql/`
 - 运行目录：`app/`
+- 默认本地端口：
+  - Web: `http://localhost:8080`
+  - Backend: `http://localhost:8081`
 
-当前仓库已经停用根目录旧 PowerShell 启动脚本。维护时请以源码、compose 文件和 `docs/` 下的说明为准。
+## 源码启动
 
-## Supported Startup Paths
+### 本地开发
 
-### 1. Local Development
-
-适合直接维护源码时使用。
+适合直接维护源码。
 
 环境基线：
 
@@ -40,18 +76,12 @@ npm install
 npm run serve
 ```
 
-默认访问地址：
-
-- Web: `http://localhost:8080`
-- Backend: `http://localhost:8081`
-
 运行模式：
+- `dev` 默认偏维护者界面
+- `prod` 默认偏读者界面
+- 如需覆盖，可设置 `APP_UI_MODE=reader|maintainer`
 
-- `dev` 配置默认是 `maintainer mode`，会显示上传、汉化、消息、爬虫等维护入口
-- `prod` 配置默认是 `reader mode`，界面只保留读书所需的轻量功能
-- 如需覆盖默认值，可设置环境变量 `APP_UI_MODE=reader|maintainer`
-
-### 2. Docker Compose
+### Docker Compose
 
 仓库根目录没有通用的 `docker-compose.yml`。请显式使用下面四个文件之一：
 
@@ -69,45 +99,11 @@ docker compose -f docker-compose.local-single.yml up --build -d
 ```
 
 说明：
+- `docker-compose.local-single.yml` 和 `docker-compose.local-dual.yml` 使用仓库根目录的 `Dockerfile` 构建当前源码
+- `docker-compose.external-single.yml` 和 `docker-compose.external-dual.yml` 仍保留为镜像部署路径
+- Compose 运行时继续挂载仓库下的 `app/` 目录作为运行目录
 
-- `docker-compose.local-single.yml` 和 `docker-compose.local-dual.yml` 现在默认使用当前仓库根目录的 [Dockerfile](/D:/Narylr/FreeNovel/Dockerfile) 构建应用镜像，适合维护源码时使用
-- `docker-compose.external-single.yml` 和 `docker-compose.external-dual.yml` 仍然保留为镜像部署路径
-- compose 运行时继续挂载仓库下的 `app/` 目录作为运行目录
-
-## Database Import
-
-大体量 SQL 数据仍需手动导入，位于 `sql/` 目录。仓库现在提供一个本地 Windows MariaDB 的安全导入入口：
-
-```powershell
-.\scripts\import-local-sql.ps1 -SqlFile .\sql\dictionary.sql -EnsureDatabase
-```
-
-推荐用法：
-
-```powershell
-.\scripts\import-local-sql.ps1 -SqlFile .\sql\main.sql
-.\scripts\import-local-sql.ps1 -SqlFile .\sql\expand.sql
-```
-
-如需覆盖默认本地参数：
-
-```powershell
-.\scripts\import-local-sql.ps1 `
-  -SqlFile .\sql\main.sql `
-  -Database novel `
-  -ServerHost 127.0.0.1 `
-  -Port 3306 `
-  -User root `
-  -Password novel_root_password
-```
-
-说明：
-
-- 该脚本固定走已验证的 `mariadb.exe` stdin 导入路径
-- 不再推荐直接使用 `mysql.exe < file.sql` 作为默认本地导入方式
-- 数据库模式说明见 `docs/engineering/database.md`
-
-## Build Commands
+## 构建命令
 
 前端构建：
 
@@ -126,26 +122,19 @@ mvn clean package -DskipTests -Pdev
 
 根目录 `Dockerfile` 会先构建 Vue CLI 前端，再把产物打进 Spring Boot 应用静态资源目录。
 
-## Maintainer Notes
+## 维护说明
 
-- 当前产品默认分成两种表面形态：
-  - `reader mode`：给小白和本地读者部署使用
-  - `maintainer mode`：给开发者和站点维护者使用
-- 第一阶段只做前端显隐和路由收口，后端维护接口仍然保留注册。
-- `novel/pom.xml` 是 Java 版本的源码真相，当前为 Java 21。
-- 前端构建工具是 Vue CLI，不是 Vite。
-- 当前依赖在 Node 24 下可以构建，但会出现 engine warning；维护时优先使用 Node 20 LTS。
-- 旧 PowerShell 辅助脚本已经退役，不再作为支持的启动入口。
-- `HELP.md` 现在只保留为简短维护备注，长期说明以 `README.md` 和 `docs/` 为准。
+- 这个仓库默认服务的是“功能推进 + 源码维护”，不是“发布包生产线”
+- `release/`、根目录中文 `.cmd` 包装脚本、源码包分发树等历史发布面不再是当前仓库的主入口
+- Node 24 目前仍可能构建成功，但依赖会报 engine warning；维护时优先使用 Node 20 LTS
+- `HELP.md` 只保留简短维护备注，长期说明以 `README.md` 和 `docs/` 为准
 
-## Repository Layout
+## 仓库结构
 
 ```text
 FreeNovel/
 ├── novel/                     # Spring Boot backend
 ├── free-novel-web/            # Vue 3 + Vue CLI frontend
-├── scripts/                   # supported local maintenance helpers
-├── sql/                       # database bootstrap and imports
 ├── app/                       # runtime logs, temp files, uploaded files
 ├── docs/                      # maintenance context and task records
 ├── Dockerfile                 # local image build path

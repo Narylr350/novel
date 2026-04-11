@@ -158,7 +158,8 @@ export default {
           response = await service.post('/api/auth/login', this.loginForm);
           localStorage.setItem('Authorization', response.data);
           this.$root.isAuthenticated = true;
-          this.$router.push('/');
+          const redirectTarget = this.$route.query.redirect;
+          this.$router.push(redirectTarget || '/webLibrary');
           ElMessage.success('登录成功');
         }
       } catch (error) {

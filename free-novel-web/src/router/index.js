@@ -224,7 +224,7 @@ const router = createRouter({
     history: createWebHistory(process.env.BASE_URL),
     routes,
 });
-const okUrl = ['WebLogin','WebSearch','RecommendationList','RecommendationDetail','WebLibrary','NovelDetail','ChapterDetail']
+const okUrl = ['WebLogin']
 const isExists = (value) => okUrl.includes(value);
 // 添加路由守卫
 router.beforeEach((to, from, next) => {
@@ -242,7 +242,8 @@ router.beforeEach((to, from, next) => {
 
     const token = localStorage.getItem('Authorization');
     if ((!token || token === 'undefined') && (!isExists(to.name))) {
-        next({ name: 'WebLogin' }); // 如果未登录或 token 无效，跳转到登录页面
+        // Preserve the target page so login can return the reader to the book flow.
+        next({ name: 'WebLogin', query: { redirect: to.fullPath } });
     } else {
         next();
     }

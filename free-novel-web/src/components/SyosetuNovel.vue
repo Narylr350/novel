@@ -307,7 +307,7 @@ td {
   background-color: #2980b9;
 }
 
-.novels-container >>> .searchkekka_box {
+.novels-container :deep(.searchkekka_box) {
   background-color: white;
   border-radius: 12px;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
@@ -317,16 +317,16 @@ td {
   border: 1px solid #eaeaea;
 }
 
-.novels-container >>> .searchkekka_box:hover {
+.novels-container :deep(.searchkekka_box:hover) {
   transform: translateY(-5px);
   box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
 }
 
-.novels-container >>> .novel_h {
+.novels-container :deep(.novel_h) {
   margin-bottom: 15px;
 }
 
-.novels-container >>> .novel_h a {
+.novels-container :deep(.novel_h a) {
   color: #2c3e50;
   text-decoration: none;
   font-size: 1.3rem;
@@ -334,27 +334,27 @@ td {
   transition: color 0.3s;
 }
 
-.novels-container >>> .novel_h a:hover {
+.novels-container :deep(.novel_h a:hover) {
   color: #3498db;
 }
 
-.novels-container >>> .author-info {
+.novels-container :deep(.author-info) {
   color: #7f8c8d;
   margin-bottom: 15px;
   font-size: 0.9rem;
 }
 
-.novels-container >>> .author-info a {
+.novels-container :deep(.author-info a) {
   color: #7f8c8d;
   text-decoration: none;
 }
 
-.novels-container >>> .author-info a:hover {
+.novels-container :deep(.author-info a:hover) {
   text-decoration: underline;
   color: #3498db;
 }
 
-.novels-container >>> .left {
+.novels-container :deep(.left) {
   padding: 15px;
   background-color: #f8f9fa;
   border-radius: 8px;
@@ -362,30 +362,30 @@ td {
   color: #2c3e50;
 }
 
-.novels-container >>> .ex {
+.novels-container :deep(.ex) {
   margin: 15px 0;
   line-height: 1.6;
   color: #34495e;
   font-size: 0.95rem;
 }
 
-.novels-container >>> .genre-keywords {
+.novels-container :deep(.genre-keywords) {
   margin: 15px 0;
   font-size: 0.9rem;
   color: #7f8c8d;
 }
 
-.novels-container >>> .genre-keywords a {
+.novels-container :deep(.genre-keywords a) {
   color: #3498db;
   text-decoration: none;
   margin-right: 10px;
 }
 
-.novels-container >>> .genre-keywords a:hover {
+.novels-container :deep(.genre-keywords a:hover) {
   text-decoration: underline;
 }
 
-.novels-container >>> .stats {
+.novels-container :deep(.stats) {
   margin-top: 20px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -394,15 +394,15 @@ td {
   color: #7f8c8d;
 }
 
-.novels-container >>> .stats span {
+.novels-container :deep(.stats span) {
   margin-right: 10px;
 }
 
-.novels-container >>> .marginleft {
+.novels-container :deep(.marginleft) {
   margin-left: 10px;
 }
 
-.novels-container >>> .translate-button {
+.novels-container :deep(.translate-button) {
   width: 100%;
   padding: 12px;
   background-color: #3498db;
@@ -416,21 +416,21 @@ td {
   font-weight: 600;
 }
 
-.novels-container >>> .translate-button:hover {
+.novels-container :deep(.translate-button:hover) {
   background-color: #2980b9;
 }
 
-.novels-container >>> table {
+.novels-container :deep(table) {
   width: 100%;
   border-collapse: collapse;
 }
 
-.novels-container >>> td {
+.novels-container :deep(td) {
   padding: 10px;
   border: 1px solid #eaeaea;
 }
 
-.novels-container >>> .attention {
+.novels-container :deep(.attention) {
   display: inline-block;
   background: linear-gradient(135deg, #ff7e5f, #feb47b);
   color: white;
@@ -438,22 +438,22 @@ td {
   border-radius: 4px;
   font-weight: bold;
 }
-::v-deep a {
+:deep(a) {
   text-decoration: none;
   color: #3498db;
   font-weight: 500;
   transition: color 0.3s ease;
 }
 
-::v-deep a:hover {
+:deep(a:hover) {
   color: #2980b9;
 }
 
-::v-deep a:visited {
+:deep(a:visited) {
   color: #3498db;
 }
 
-::v-deep a:active {
+:deep(a:active) {
   color: #1a5276;
 }
 </style>

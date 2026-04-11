@@ -16,6 +16,7 @@ Implement the first repository-owned `lite` database export/import tooling so th
 - Add a candidate-novel probe script and export/import scripts for `schema.sql`, `seed-system-lite.sql`, `seed-reader-demo.sql`, and the one-shot `import-lite` path.
 - Validate the scripts against the healthy local MariaDB instance and record the first provisional demo-novel shortlist.
 - Sync the backend/database docs with the new export workflow and command entrypoints.
+- Add publishable package wrappers and package-local redistribution docs so the first `lite` baseline can be shared without asking users to remember the three lower-level export commands.
 
 ## Design
 This task is the executable follow-up to [2026-04-03-lite-database-package-design.md](./2026-04-03-lite-database-package-design.md). The design choices already confirmed in conversation stay in force:
@@ -124,18 +125,45 @@ Implemented the first runnable `lite` package toolchain under `scripts/`:
 - Added `scripts/export-lite-reader-demo.ps1` to export selected demo novels with their tags, TOC, chapters, and image-link rows.
 - Added `scripts/import-lite.ps1` to wrap the repository-supported import path and load the three generated `lite` package files in order.
 
-### First Provisional Demo Books
-The first candidate probe showed that many large novels have no usable `novel_chapter` rows, so the provisional `lite` set was deliberately restricted to books with both chapter payloads and TOC rows:
+### Current Demo Books
+The original `shutu` demo trio turned out to have directory rows but empty chapter content in the healthy source database, so the shipping `lite` baseline was replaced with books that have verified non-null chapter payloads:
 
-- `353498` / `绿皮`
-- `353474` / `祸世末子的回归`
-- `353487` / `亲手培养的女团`
+- `892` / `风与星群`
+- `1333` / `1点灵魂兵复活了`
+- `349985` / `进入创作世界中 / 穿越进作品里`
+
+The reader-facing directory path currently depends on `chapter.novel_id`, not `novel_chapter`, so `lite` integrity now treats `novel` + `chapter` + `user` as the hard baseline and keeps `novel_chapter` as compatibility data when available.
 
 ### Package Output
 Validated output files were generated under `sql/lite/`:
 - `schema.sql`
 - `seed-system-lite.sql`
 - `seed-reader-demo.sql`
+
+### Publishable Lite Baseline Entrypoints
+The first runnable toolchain has now been wrapped into two user-facing scripts:
+
+- `scripts/export-lite-package.ps1`
+  - runs the three lower-level exports in order
+  - writes `package-manifest.json`
+  - writes `sql/lite/README.md` for redistribution
+- `scripts/install-lite-local.ps1`
+  - wraps `import-lite.ps1`
+  - prints the demo account and next-step reader-mode hint after import
+
+This closes the gap between “the repository can generate a lite package” and “a maintainer can hand that package to someone else with one install command.”
+
+### Reader-Facing Documentation Pass
+The first publishable lite baseline now also has a dedicated small-user quickstart document:
+
+- `docs/engineering/reader-lite-quickstart.md`
+
+The documentation split is now:
+- `README.md`: repository root maintainer entry plus explicit link to the lite quickstart
+- `docs/engineering/reader-lite-quickstart.md`: small-user local install/start path
+- `sql/lite/README.md`: package-local redistribution note shipped with the generated package
+
+This keeps the root repository docs usable for maintainers while giving small-user installs a much shorter path.
 
 ### Reader-Lite Runtime Hardening
 Validated the generated `novel_lite_validation` database by running the full backend and web stack against it, then tightened the reader-mode runtime assumptions until the chapter-detail reading flow was stable.
@@ -167,16 +195,16 @@ Completed validation:
 - `.\scripts\find-lite-candidate-novels.ps1 -Limit 10`
 - `.\scripts\export-lite-schema.ps1`
 - `.\scripts\export-lite-system-seed.ps1`
-- `.\scripts\export-lite-reader-demo.ps1 -NovelIds 353498,353474,353487`
+- `.\scripts\export-lite-reader-demo.ps1 -NovelIds 892,1333,349985`
 - `.\scripts\import-lite.ps1 -LiteDirectory .\sql\lite -Database novel_lite_validation`
 
-Database verification against `novel_lite_validation`:
+Database verification against refreshed `novel_lite`:
 - `novel`: `3`
-- `chapter`: `1187`
-- `novel_chapter`: `1187`
+- `chapter`: `8621`
+- `novel_chapter`: `0`
 - `dictionary`: `66`
 - `user`: `1`
-- `chapter_image_links`: `145`
+- `chapter_image_links`: `0`
 
 Backend HTTP smoke tests against the healthy source database:
 - `GET /api/novels/353498`
@@ -187,7 +215,8 @@ Backend HTTP smoke tests against the healthy source database:
 Key findings from validation:
 - `mysqldump.exe` must be invoked with `--column-statistics=0` against MariaDB.
 - `reader-demo` exports that use subqueries in `--where` must also disable table locks and run in a transaction (`--single-transaction --skip-lock-tables`).
-- The first provisional demo-book set produces a self-consistent TOC/chapter package in the validation database.
+- The originally selected `shutu` sample novels were bad data for reader validation because they had empty `chapter.content`.
+- The refreshed `novelPia` sample set produces non-null chapter content in `novel_lite`.
 
 ### Runtime Validation Against `novel_lite_validation`
 Additional backend/frontend validation completed after the initial export/import phase:
@@ -215,10 +244,35 @@ Key findings from the runtime pass:
 - `chapter 6006108` stores empty content in both the full and lite databases, which exposed a real API contract bug: encrypting an empty payload caused the frontend to treat a valid empty chapter as a decryption failure.
 - The generated lite package is now validated through a real logged-in chapter-detail flow, not only through import counts and list/detail API smoke tests.
 
+### Publishable Package Validation
+After adding the package/install wrappers, the first publishable baseline was revalidated through the wrapper entrypoints:
+
+- `Invoke-Pester -Path .\scripts\tests\LitePackageTools.Tests.ps1`
+- `.\scripts\export-lite-package.ps1`
+- `.\scripts\install-lite-local.ps1 -LiteDirectory .\sql\lite -Database novel_lite_release_validation`
+
+Observed package contents after wrapper export:
+- `schema.sql`
+- `seed-system-lite.sql`
+- `seed-reader-demo.sql`
+- `package-manifest.json`
+- `README.md`
+
+Observed install result in `novel_lite_release_validation`:
+- package imported through the one-path install entrypoint
+- demo account and demo novels match the repository baseline
+- no manual SQL command sequence was required during validation
+
+Additional packaging finding:
+- the Windows MariaDB 12.1 client required `--skip-ssl` even for local bootstrap/import commands; without that flag the wrapper install path failed during `CREATE DATABASE` with `TLS/SSL error: no credentials`
+
 ## Documentation Sync
 - Updated: `docs/tasks/backend/2026-04-04-lite-database-export-implementation.md`
 - Updated: `docs/tasks/backend/INDEX.md`
 - Updated: `docs/engineering/database.md`
+- Updated: `docs/engineering/runtime-operations.md`
+- Updated: `docs/engineering/reader-lite-quickstart.md`
+- Updated: `README.md`
 - Updated: `docs/tasks/web/INDEX.md`
 - Checked with no change needed: `docs/context/development-roadmap.md`
 - Checked with no change needed: `docs/context/architecture.md`

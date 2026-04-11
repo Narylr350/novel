@@ -1,10 +1,9 @@
 # Architecture
 
 ## Repository Shape
-FreeNovel uses a practical two-app layout with heavy supporting data and runtime directories:
+FreeNovel uses a practical two-app layout with runtime and documentation directories:
 - `novel`
 - `free-novel-web`
-- `sql`
 - `app`
 
 Documentation is centralized under `docs/` to reduce repeated context gathering by AI agents.
@@ -30,10 +29,10 @@ Primary layers:
 - `src/components`: route-level and reusable view components
 
 ## Confirmed Long-Term System Layers
-The repository is being stabilized toward a layered runtime shape instead of one mixed feature surface:
+The repository is now maintained and extended through a layered runtime shape instead of one mixed feature surface:
 
 1. `Reader Product Layer`
-   - published default
+   - deployed default
    - login, browse, search, read, comment, favorites, notes, history, export, and Legado-facing reader features
 
 2. `Precision Crawler Layer`
@@ -61,7 +60,7 @@ These layers are complementary:
 - Keep one business goal per task, even when backend, frontend, docs, and config all need changes.
 - Treat auth/signature flow as a cross-layer contract; do not change one side without inspecting the other.
 - Treat scheduler, crawler, translation, upload, and sitemap logic as high-side-effect areas requiring explicit validation.
-- Treat `sql/` imports and database mode changes as operational changes, not simple config edits.
+- Treat database bootstrap/import assets and database mode changes as operational changes, not simple config edits, even when those assets live outside the tracked source tree.
 - Treat rule-source, translation, and OCR work as maintainer-platform capabilities unless a task explicitly changes the reader-facing product.
 
 ## Documentation Architecture

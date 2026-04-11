@@ -1,0 +1,8 @@
+Error during shutdown hook execution: Could not open JPA EntityManager for transaction
+Backend startup failed with exit code 1.
+ËùÔÚÎ»ÖÃ D:\Narylr\FreeNovel\scripts\start-reader-backend.ps1:76 ×Ö·û: 5
++     throw "Backend startup failed with exit code $LASTEXITCODE."
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (Backend startup failed with exit code 1.:String) [], RuntimeException
+    + FullyQualifiedErrorId : Backend startup failed with exit code 1.
+ 

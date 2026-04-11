@@ -262,8 +262,7 @@ export default {
       return `${year}-${month}-${day}`;
     },
     goToNovel(id) {
-      const routeData = this.$router.resolve({ name: 'NovelDetail', params: { id: id } });
-      window.open(routeData.href, '_blank');
+      this.$router.push({ name: 'NovelDetail', params: { id: id } });
     },
     async fetchFavorites() {
       service.get(`/api/favorites/user/group/${this.activeTab}`).then(response => {

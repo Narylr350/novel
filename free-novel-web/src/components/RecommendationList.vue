@@ -337,8 +337,7 @@ export default {
       }
     },
     openPostInNewTab(post) {
-      const routeData = this.$router.resolve({ name: 'RecommendationDetail', params: { id: post.id } });
-      window.open(routeData.href, '_blank');
+      this.$router.push({ name: 'RecommendationDetail', params: { id: post.id } });
     },
     togglePublishForm() {
       this.showPublishForm = !this.showPublishForm;

@@ -516,19 +516,16 @@ saveTags() {
           .catch(error => console.error('Error fetching tags:', error));
     },
     gotoChapter(id) {
-      const routeData = this.$router.resolve({ name: 'ChapterDetail', params: { id: id } });
-      window.open(routeData.href, '_blank');
+      this.$router.push({ name: 'ChapterDetail', params: { id: id } });
     },
     getHistory() {
-      const routeData = this.$router.resolve({
+      this.$router.push({
         name: 'ChapterDetail',
         params: { id: this.novel.lastChapterId }
       });
-      window.open(routeData.href, '_blank');
     },
     getOne() {
-      const routeData = this.$router.resolve({ name: 'ChapterDetail', params: { id: this.chaptersPage[0].id } });
-      window.open(routeData.href, '_blank');
+      this.$router.push({ name: 'ChapterDetail', params: { id: this.chaptersPage[0].id } });
     },
     setupMessageRotation() {
       if (this.homeDic && this.homeDic.length > 0) {
@@ -631,8 +628,7 @@ saveTags() {
       this.$router.push({ name: url, params: { id: id } }); // 跳转到目标路由
     },
     urlPushBlank(url, id) {
-      const routeData = this.$router.resolve({ name: url, params: { id: id } });
-      window.open(routeData.href, '_blank');
+      this.$router.push({ name: url, params: { id: id } });
     },
     openWriterDetail() {
       if (!this.isMaintainerAppMode) {

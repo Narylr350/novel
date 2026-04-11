@@ -326,8 +326,7 @@ export default {
       }
     },
     gotoNovelDetail(id) {
-      const routeData = this.$router.resolve({ name: 'NovelDetail', params: { id: id } });
-      window.open(routeData.href, '_blank');
+      this.$router.push({ name: 'NovelDetail', params: { id: id } });
     },
     async getPlatformsByType() {
       try {

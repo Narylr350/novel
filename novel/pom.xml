@@ -30,6 +30,10 @@
         <java.version>21</java.version>
         <netty.version>4.2.7.Final</netty.version>
         <tomcat.version>11.0.13</tomcat.version>
+        <frontend.workingDirectory>${project.basedir}/../free-novel-web</frontend.workingDirectory>
+        <frontend.distDirectory>${project.basedir}/../free-novel-web/dist</frontend.distDirectory>
+        <npm.executable>npm</npm.executable>
+        <skip.frontend.build>false</skip.frontend.build>
     </properties>
     <profiles>
         <profile>
@@ -55,6 +59,17 @@
             <id>prod</id>
             <properties>
                 <profileActive>prod</profileActive>
+            </properties>
+        </profile>
+        <profile>
+            <id>windows-tooling</id>
+            <activation>
+                <os>
+                    <family>Windows</family>
+                </os>
+            </activation>
+            <properties>
+                <npm.executable>npm.cmd</npm.executable>
             </properties>
         </profile>
     </profiles>
@@ -187,6 +202,44 @@
         </resources>
         <plugins>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <execution>
+                        <id>frontend-npm-ci</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skip.frontend.build}</skip>
+                            <workingDirectory>${frontend.workingDirectory}</workingDirectory>
+                            <executable>${npm.executable}</executable>
+                            <arguments>
+                                <argument>ci</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>frontend-build</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skip.frontend.build}</skip>
+                            <workingDirectory>${frontend.workingDirectory}</workingDirectory>
+                            <executable>${npm.executable}</executable>
+                            <arguments>
+                                <argument>run</argument>
+                                <argument>build</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
@@ -200,6 +253,24 @@
                     </delimiters>
                     <useDefaultDelimiters>false</useDefaultDelimiters>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>copy-frontend-dist-into-static</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}/static</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${frontend.distDirectory}</directory>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
