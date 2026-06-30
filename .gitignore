@@ -8,6 +8,7 @@
 /novel/.vscode/
 /novel/.mvn/
 /free-novel-web/.idea/
+*.iml
 
 # Frontend dependencies and local build caches
 /free-novel-web/node_modules/
@@ -26,6 +27,7 @@
 # AI assistant workflows and caches
 docs/
 .claude/
+.opencode/
 .cursor/
 .windsurf/
 .superpowers/
