@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mariadb-primary:
     image: mariadb:11.8-noble

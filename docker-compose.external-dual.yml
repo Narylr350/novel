@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   novel-app:
     image: mattgideon/freenovel:v1.0.11-prod
