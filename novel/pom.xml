@@ -167,14 +167,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Spring Boot 属性迁移器，用于帮助从 Spring Boot 3.x 升级到 4.0 -->
-        <!-- 迁移完成后请移除此依赖 -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-properties-migrator</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
