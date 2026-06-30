@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import {containsChinese, getTitleText, getTitleText1, getTitleText2} from "@/api/axios";
 import {ElMessage} from "element-plus";
 import { getAppMode, resolveAppModeRouteTarget } from '../config/appMode.mjs';
+import { resolveAuthRouteTarget } from './authGuard.mjs';
 const WebLibrary = () => import(/* webpackChunkName: "FeedBack" */ '../components/WebLibrary.vue')
 const WebSearch = () => import(/* webpackChunkName: "FeedBack" */ '../components/WebSearch.vue')
 const WebFavorites = () => import(/* webpackChunkName: "FeedBack" */ '../components/WebFavorites.vue')
@@ -174,6 +175,7 @@ const routes = [
         path: '/recommendationDetail/:id',
         name: 'RecommendationDetail',
         component: RecommendationDetail,
+        meta: { publicAccess: true }
     },
     {
         path: '/login',
@@ -194,12 +196,13 @@ const routes = [
         path: '/chapterDetail/:id',
         name: 'ChapterDetail',
         component: ChapterDetail,
-        meta: { hideApp: true}
+        meta: { hideApp: true, publicAccess: true }
     },
     {
         path: '/novelDetail/:id',
         name: 'NovelDetail',
         component: NovelDetail,
+        meta: { publicAccess: true }
     },
     {
         path: '/userDetail',
@@ -224,8 +227,6 @@ const router = createRouter({
     history: createWebHistory(process.env.BASE_URL),
     routes,
 });
-const okUrl = ['WebLogin']
-const isExists = (value) => okUrl.includes(value);
 // 添加路由守卫
 router.beforeEach((to, from, next) => {
     let newVar = getTitleText1() + getTitleText() + getTitleText2();
@@ -241,12 +242,13 @@ router.beforeEach((to, from, next) => {
     }
 
     const token = localStorage.getItem('Authorization');
-    if ((!token || token === 'undefined') && (!isExists(to.name))) {
-        // Preserve the target page so login can return the reader to the book flow.
-        next({ name: 'WebLogin', query: { redirect: to.fullPath } });
-    } else {
-        next();
+    const authRedirect = resolveAuthRouteTarget(to, token);
+    if (authRedirect) {
+        next(authRedirect);
+        return;
     }
+
+    next();
 });
 router.afterEach(() => {
 

@@ -7,13 +7,14 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class RuntimeDefaultsTest {
 
     @Test
-    void devAndProdProfilesDoNotShipPollutedSignatureDefaults() throws Exception {
-        assertEquals("${API_SIGNATURE_SECRET:}", loadProperties("application-dev.properties").getProperty("api.signature.secret"));
-        assertEquals("${API_SIGNATURE_SECRET:}", loadProperties("application-prod.properties").getProperty("api.signature.secret"));
+    void devAndProdProfilesDoNotExposeUnusedSignatureSecret() throws Exception {
+        assertNull(loadProperties("application-dev.properties").getProperty("api.signature.secret"));
+        assertNull(loadProperties("application-prod.properties").getProperty("api.signature.secret"));
     }
 
     @Test
