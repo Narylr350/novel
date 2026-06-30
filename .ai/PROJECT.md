@@ -48,7 +48,7 @@ FreeNovel 的长期目标是维护成一个小说阅读与内容接入平台。
 - 书源 JSON / Legado 规则
 - 现有 validator / 书源执行器项目：`D:\Narylr\阅读书源生成技能`
 - MariaDB 数据库
-- 外部小说站点 HTTP / WebView / JS 执行结果
+- 外部小说站点 HTTP / 桌面浏览器渲染 / JS 执行结果
 
 主要输出：
 
@@ -87,11 +87,14 @@ FreeNovel 的长期目标是维护成一个小说阅读与内容接入平台。
 - `D:\Narylr\阅读书源生成技能` 作为现有实现参考和可迁移能力来源。
 - 接入方式分阶段推进：先定义后端边界和最小 API，再接入一个书源闭环，再考虑调试工作台和缓存。
 - 当前采用方案：在 FreeNovel 后端内新增规则书源模块，复用现有用户、阅读、前端和部署路径。
+- Legado 书源里的 `webView:true` 在 FreeNovel 内解释为“需要浏览器渲染正文”的兼容信号；MVP 优先使用 Windows/桌面 Chromium 或 Edge 渲染，不依赖 Android WebView / Android Probe。
+- 正文渲染内部区分 `http`、`desktop_browser` 等执行模式；桌面浏览器模式可按需使用 desktop 或 mobile profile，但结果必须标注实际 renderer，不能冒充 Legado App 实测。
 
 暂不采用：
 
 - 独立 sidecar 服务作为长期主方案。
 - 单独做一个新阅读网站替代 FreeNovel 前端。
+- Android WebView / Android Probe 作为 MVP 必需依赖。
 
 ## 7. Constraints and Working Rules
 
@@ -101,6 +104,7 @@ FreeNovel 的长期目标是维护成一个小说阅读与内容接入平台。
 - 大多数 `/api/**` 端点受自定义签名/鉴权影响，书源 API 也要明确哪些公开、哪些需要维护者权限。
 - scheduler、crawler、translation、upload、sitemap、file-import 属于高副作用区域，改动必须谨慎验证。
 - 书源执行涉及外部 I/O、JS、cookie、登录态和反爬，必须先小闭环验证，不把猜测写成已完成。
+- 桌面浏览器渲染必须有超时、并发限制、页面/上下文释放、内网和本地地址访问防护，并在错误归因中记录实际 renderer。
 - 配置或部署改动必须同时检查源码配置、环境示例、Dockerfile、Compose 和相关说明，避免只改一处。
 - 前端改动优先复用现有组件和视觉风格。
 - Node 维护基线优先使用 Node 20 LTS；Node 24 的依赖警告先按环境风险处理，不直接判断为源码损坏。
@@ -128,6 +132,7 @@ FreeNovel 的长期目标是维护成一个小说阅读与内容接入平台。
 - 前端 bug 或配置改动：运行能覆盖该问题的 build、lint 或浏览器手动验证。
 - Docker/Compose 改动：至少检查 compose 配置能解析；如本地条件允许，再启动验证。
 - 书源接入：必须至少验证一个真实书源的搜索、详情、目录、正文链路。
+- 带 `webView:true` 或需要 JS 渲染的正文，优先用 Windows/桌面浏览器渲染验证；验证结论必须区分 `http`、`desktop_browser`、`needs_app_review`。
 - 外部站点失败时，要记录是网络、规则、登录态、验证码、CSR、正文抽取还是编码问题。
 - 不能只看“接口 200”，正文要确认实际可读。
 - 文档整理：核对文档描述是否与当前源码、配置和命令一致。
@@ -139,7 +144,7 @@ FreeNovel 的长期目标是维护成一个小说阅读与内容接入平台。
 第一批任务：
 
 1. 梳理 `D:\Narylr\阅读书源生成技能` validator 的可迁移边界：导入、搜索、详情、目录、正文、cookie、JS、错误归因。
-2. 在 FreeNovel 后端设计最小规则书源模块和 API：source import、source list、debug run、reader search/detail/toc/content。
-3. 接入一个最小书源执行闭环，不先做 UI 大改。
+2. 在 FreeNovel 后端设计最小规则书源模块和 API：source import、source list、debug run、reader search/detail/toc/content，并包含 `http` / `desktop_browser` renderer 边界。
+3. 接入一个最小书源执行闭环，不先做 UI 大改；需要 JS 渲染正文时走 Windows/桌面浏览器模式。
 4. 让现有前端阅读链路能消费书源内容，优先复用当前详情/章节页面。
 5. 跑一轮端到端验证：导入书源 -> 搜索 -> 打开详情 -> 打开章节 -> 正文可读。
