@@ -1,5 +1,5 @@
 # 前端构建
-FROM node:18-alpine AS frontend-builder
+FROM node:20-alpine AS frontend-builder
 
 WORKDIR /frontend
 
@@ -12,7 +12,7 @@ COPY free-novel-web/ ./
 RUN npm run build
 
 # 服务端构建
-FROM maven:3.9-eclipse-temurin-17-alpine AS backend-builder
+FROM maven:3.9-eclipse-temurin-21-alpine AS backend-builder
 
 WORKDIR /app
 
@@ -31,7 +31,7 @@ RUN mkdir -p target/dependency && \
     cd target/dependency && \
     jar -xf ../*.jar
 
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 
 RUN apk add --no-cache curl tzdata && \
     cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
@@ -59,7 +59,6 @@ ENV JAVA_OPTS="-Xms512m -Xmx2048m \
     -XX:+UseStringDeduplication \
     -XX:+OptimizeStringConcat \
     -Djava.security.egd=file:/dev/./urandom \
-    -Dspring.profiles.active=prod \
     -XX:+HeapDumpOnOutOfMemoryError \
     -XX:HeapDumpPath=/app/logs/heapdump.hprof"
 
