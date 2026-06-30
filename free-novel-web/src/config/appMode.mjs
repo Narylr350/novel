@@ -1,4 +1,4 @@
-import axios from 'axios';
+import service from '../api/axios.js';
 
 export const ALLOWED_APP_MODES = ['reader', 'maintainer'];
 
@@ -41,7 +41,7 @@ export function resolveAppModeRouteTarget(to, appMode = currentAppMode) {
 
 export async function loadAppMode() {
   try {
-    const response = await axios.get('/api/auth/app-mode');
+    const response = await service.get('/api/auth/app-mode');
     return setAppMode(response?.data?.mode);
   } catch (error) {
     return setAppMode('reader');
