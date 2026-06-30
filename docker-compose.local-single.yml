@@ -38,6 +38,7 @@ services:
       # 应用配置
       SERVER_PORT: 8081
       SPRING_PROFILES_ACTIVE: prod
+      APP_CORS_ALLOWED_ORIGIN_PATTERNS: ${APP_CORS_ALLOWED_ORIGIN_PATTERNS:-}
 
       # Sitemap 配置
       SITEMAP_RUN: ${SITEMAP_RUN:-false}
