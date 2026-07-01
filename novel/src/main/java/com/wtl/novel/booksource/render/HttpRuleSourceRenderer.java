@@ -3,11 +3,19 @@ package com.wtl.novel.booksource.render;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.InflaterInputStream;
 
 @Component
 public class HttpRuleSourceRenderer implements RuleSourceRenderer {
@@ -37,12 +45,12 @@ public class HttpRuleSourceRenderer implements RuleSourceRenderer {
                 .GET();
         request.headers().forEach(builder::header);
         try {
-            HttpResponse<String> response = client.send(builder.build(), HttpResponse.BodyHandlers.ofString());
+            HttpResponse<byte[]> response = client.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
             return new RenderedPage(
                     response.uri().toString(),
                     response.statusCode(),
                     response.headers().map(),
-                    response.body(),
+                    decodeBody(response.body(), response.headers().map(), request),
                     "http",
                     "desktop",
                     null,
@@ -58,5 +66,29 @@ public class HttpRuleSourceRenderer implements RuleSourceRenderer {
 
     private int timeoutMillis(RenderRequest request) {
         return request.timeoutMillis() > 0 ? request.timeoutMillis() : DEFAULT_TIMEOUT_MILLIS;
+    }
+
+    private String decodeBody(byte[] body, Map<String, List<String>> headers, RenderRequest request) throws IOException {
+        byte[] decoded = switch (firstHeader(headers, "content-encoding").toLowerCase(Locale.ROOT)) {
+            case "gzip" -> new GZIPInputStream(new ByteArrayInputStream(body)).readAllBytes();
+            case "deflate" -> new InflaterInputStream(new ByteArrayInputStream(body)).readAllBytes();
+            default -> body;
+        };
+        return new String(decoded, charset(request));
+    }
+
+    private String firstHeader(Map<String, List<String>> headers, String name) {
+        return headers.entrySet().stream()
+                .filter(entry -> entry.getKey().equalsIgnoreCase(name))
+                .flatMap(entry -> entry.getValue().stream())
+                .findFirst()
+                .orElse("");
+    }
+
+    private Charset charset(RenderRequest request) {
+        if (request.charset() == null || request.charset().isBlank()) {
+            return StandardCharsets.UTF_8;
+        }
+        return Charset.forName(request.charset());
     }
 }

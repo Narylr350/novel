@@ -48,7 +48,7 @@ class BookSourceExecutionServiceTest {
                   },
                   "ruleToc": {
                     "chapterList": ".chapter",
-                    "chapterName": "@text",
+                    "chapterName": "text",
                     "chapterUrl": "@href"
                   },
                   "ruleContent": {

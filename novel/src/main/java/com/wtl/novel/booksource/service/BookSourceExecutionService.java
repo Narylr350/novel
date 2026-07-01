@@ -188,6 +188,9 @@ public class BookSourceExecutionService {
             return null;
         }
         // First execution slice: support CSS selector rules plus @text/@html/@href/@src extraction.
+        if (isCurrentElementRule(rule)) {
+            return readAttribute(context, rule);
+        }
         int attrSeparator = rule.lastIndexOf('@');
         if (attrSeparator >= 0) {
             String selector = rule.substring(0, attrSeparator);
@@ -205,6 +208,7 @@ public class BookSourceExecutionService {
         }
         return switch (attribute) {
             case "text" -> element.text();
+            case "ownText" -> element.ownText();
             case "html" -> element.html();
             case "href", "src" -> {
                 String absolute = element.absUrl(attribute);
@@ -212,6 +216,10 @@ public class BookSourceExecutionService {
             }
             default -> element.attr(attribute);
         };
+    }
+
+    private boolean isCurrentElementRule(String rule) {
+        return "text".equals(rule) || "ownText".equals(rule) || "html".equals(rule);
     }
 
     private String stripRuleOptions(String rawRule) {
