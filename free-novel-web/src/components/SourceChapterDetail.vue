@@ -149,6 +149,7 @@
 
 <script>
 import { getSourceBookToc, getSourceChapterContent } from '@/api/bookSources.mjs';
+import { splitSourceContentLines } from '@/utils/sourceContentLines.mjs';
 
 export default {
   name: 'SourceChapterDetail',
@@ -198,8 +199,7 @@ export default {
       return this.$route.query.chapterTitle || '';
     },
     contentLines() {
-      const content = this.chapter.content || '';
-      return content.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+      return splitSourceContentLines(this.chapter.content || '');
     },
     contentCharCount() {
       return (this.chapter.content || '').length;
