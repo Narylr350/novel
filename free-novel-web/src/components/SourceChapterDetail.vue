@@ -482,8 +482,8 @@ export default {
 .novel-content p {
   text-indent: 2em;
   white-space: pre-wrap;
-  word-break: keep-all;
-  overflow-wrap: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
   font-feature-settings: "kern" 0, "liga" 0, "palt" 1;
 }
 
