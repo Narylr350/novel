@@ -43,12 +43,15 @@
         <h2 class="chapter-title">{{ chapter.title || '书源章节' }}</h2>
         <div class="reader-meta">
           <span>书源：{{ sourceId }}</span>
-          <span v-if="chapter.rendererMode">渲染：{{ chapter.rendererMode }}</span>
-          <span v-if="chapter.finalUrl">地址：{{ chapter.finalUrl }}</span>
+          <span v-if="chapter.rendererMode">调试渲染：{{ chapter.rendererMode }}</span>
+          <span v-if="chapter.finalUrl">最终地址：{{ chapter.finalUrl }}</span>
         </div>
       </div>
 
       <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+      <div v-else-if="!loading && contentLines.length === 0" class="empty-message">
+        正文为空，请检查书源正文规则或该章节是否需要桌面浏览器渲染。
+      </div>
       <div v-else class="novel-content">
         <p v-for="(line, index) in contentLines" :key="index">{{ line }}</p>
       </div>
@@ -142,6 +145,7 @@ export default {
           bookKey: this.$route.query.bookKey,
           bookUrl: this.$route.query.bookUrl,
           tocUrl: this.$route.query.tocUrl,
+          keyword: this.$route.query.keyword,
         },
       });
     },
@@ -357,6 +361,12 @@ export default {
 .error-message {
   color: #c23a3a;
   margin: 20px 0;
+  text-align: center;
+}
+
+.empty-message {
+  color: #777;
+  margin: 40px 0;
   text-align: center;
 }
 

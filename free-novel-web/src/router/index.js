@@ -9,6 +9,7 @@ const WebFavorites = () => import(/* webpackChunkName: "FeedBack" */ '../compone
 const ChapterDetail = () => import(/* webpackChunkName: "FeedBack" */ '../components/ChapterDetail.vue')
 const NovelDetail = () => import(/* webpackChunkName: "FeedBack" */ '../components/NovelDetail.vue')
 const SourceSearch = () => import(/* webpackChunkName: "FeedBack" */ '../components/SourceSearch.vue')
+const SourceAdmin = () => import(/* webpackChunkName: "Admin" */ '../components/SourceAdmin.vue')
 const SourceBookDetail = () => import(/* webpackChunkName: "FeedBack" */ '../components/SourceBookDetail.vue')
 const SourceChapterDetail = () => import(/* webpackChunkName: "FeedBack" */ '../components/SourceChapterDetail.vue')
 const UserDetail = () => import(/* webpackChunkName: "FeedBack" */ '../components/UserDetail.vue')
@@ -101,6 +102,12 @@ const routes = [
         name: 'WebSearch',
         component: WebSearch,
         meta: { hideSearch: true }
+    },
+    {
+        path: '/source-admin',
+        name: 'SourceAdmin',
+        component: SourceAdmin,
+        meta: { hideSearch: true, appMode: 'maintainer' }
     },
     {
         path: '/source/:sourceId/search',

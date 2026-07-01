@@ -11,9 +11,10 @@
             <div class="novel-info">
               <h1 class="novel-title">{{ book.name || '书源小说详情' }}</h1>
               <div class="tags">
-                <span class="tag">书源：{{ sourceId }}</span>
+                <span class="tag">书源：{{ sourceTitle }}</span>
                 <span class="tag" v-if="book.kind">{{ book.kind }}</span>
               </div>
+              <div class="source-url" v-if="source?.bookSourceUrl">来源：{{ source.bookSourceUrl }}</div>
               <div class="novel-stats">
                 <span class="stat">
                   作者：{{ book.author || '未知' }}
@@ -44,7 +45,7 @@
               <button @click="toggleSortOrder" class="sort-button" :class="{ active: sortOrder === 'desc' }">倒序</button>
             </div>
           </div>
-          <div v-if="chapters.length === 0" class="empty-message">暂无章节</div>
+          <div v-if="chapters.length === 0" class="empty-message">暂无章节，请检查书源目录规则或书籍地址</div>
           <div v-else class="chapter-list1">
             <div class="chapter-grid">
               <div
@@ -65,7 +66,7 @@
 </template>
 
 <script>
-import { getSourceBookDetail, getSourceBookToc } from '@/api/bookSources.mjs';
+import { getSourceBookDetail, getSourceBookToc, listBookSources } from '@/api/bookSources.mjs';
 
 export default {
   name: 'SourceBookDetail',
@@ -76,6 +77,7 @@ export default {
       book: {},
       chapters: [],
       sortOrder: 'asc',
+      source: null,
     };
   },
   computed: {
@@ -91,6 +93,9 @@ export default {
     tocUrl() {
       return this.book.tocUrl || this.$route.query.tocUrl || '';
     },
+    sourceTitle() {
+      return this.source?.bookSourceName || this.sourceId;
+    },
     sortedChapters() {
       const chapters = [...this.chapters];
       return chapters.sort((a, b) => {
@@ -99,9 +104,19 @@ export default {
     },
   },
   mounted() {
+    this.loadSourceMeta();
     this.fetchDetail();
   },
   methods: {
+    loadSourceMeta() {
+      listBookSources()
+        .then((data) => {
+          this.source = (data.sources || []).find((item) => item.sourceId === this.sourceId) || null;
+        })
+        .catch((error) => {
+          console.error('Load source meta failed:', error);
+        });
+    },
     fetchDetail() {
       if (!this.sourceId || !this.bookUrl) {
         this.errorMessage = '缺少书源或书籍地址';
@@ -128,6 +143,7 @@ export default {
         })
         .catch((error) => {
           console.error('Source detail failed:', error);
+          this.chapters = [];
           this.errorMessage = '详情或目录加载失败';
         })
         .finally(() => {
@@ -152,11 +168,16 @@ export default {
           tocUrl: this.tocUrl,
           chapterKey: chapter.chapterKey,
           chapterUrl: chapter.chapterUrl,
+          keyword: this.$route.query.keyword,
         },
       });
     },
     goBackSearch() {
-      this.$router.push({ name: 'SourceSearch', params: { sourceId: this.sourceId } });
+      this.$router.push({
+        name: 'SourceSearch',
+        params: { sourceId: this.sourceId },
+        query: this.$route.query.keyword ? { keyword: this.$route.query.keyword } : {},
+      });
     },
   },
 };
@@ -281,7 +302,8 @@ export default {
 }
 
 .novel-stats,
-.novel-intro {
+.novel-intro,
+.source-url {
   font-size: 12px;
   color: #666;
   line-height: 1.7;

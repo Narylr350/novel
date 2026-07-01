@@ -24,6 +24,9 @@
               <a href="#" :class="{ active: activeRoute === '/search' }" @click.stop="urlPush('/search')">搜索</a>
             </li>
             <li v-if="isLoginTag && isMaintainerAppMode">
+              <a href="#" :class="{ active: activeRoute === '/source-admin' }" @click.stop="urlPush('/source-admin')">书源</a>
+            </li>
+            <li v-if="isLoginTag && isMaintainerAppMode">
               <a href="#" :class="{ active: activeRoute === '/uploadNovelDetail' }" @click.stop="uploadNovel">上传</a>
             </li>
             <li v-if="isLoginTag && isMaintainerAppMode">

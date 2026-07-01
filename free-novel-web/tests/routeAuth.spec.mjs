@@ -61,7 +61,7 @@ assert.match(routerSource, /name: 'ChapterDetail',[\s\S]*?meta: \{[^}]*publicAcc
 assert.match(routerSource, /name: 'NovelDetail',[\s\S]*?meta: \{[^}]*publicAccess: true/);
 assert.match(routerSource, /resolveAuthRouteTarget\(to, token\)/);
 
-for (const routeName of ['SourceSearch', 'SourceBookDetail', 'SourceChapterDetail']) {
+for (const routeName of ['SourceAdmin', 'SourceSearch', 'SourceBookDetail', 'SourceChapterDetail']) {
   assert.match(routerSource, new RegExp(`name: '${routeName}'`));
   assert.ok(routeBlock(routeName).length > 0, `${routeName} route should be registered`);
   assert.doesNotMatch(routeBlock(routeName), /publicAccess: true/);
@@ -73,5 +73,8 @@ for (const routeName of ['SourceSearch', 'SourceBookDetail', 'SourceChapterDetai
     { name: 'WebLogin', query: { redirect: `/source/test/${routeName}` } }
   );
 }
+
+assert.match(routeBlock('SourceAdmin'), /hideSearch: true/);
+assert.match(routeBlock('SourceAdmin'), /appMode: 'maintainer'/);
 
 console.log('routeAuth.spec.mjs passed');

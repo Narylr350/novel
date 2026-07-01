@@ -6,8 +6,9 @@
     </div>
 
     <div class="source-meta">
-      <span>书源：{{ sourceId }}</span>
+      <span>书源：{{ sourceTitle }}</span>
       <span v-if="resultCount !== null">结果：{{ resultCount }}</span>
+      <button class="link-button" @click="goAdmin">返回书源管理</button>
     </div>
 
     <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
@@ -31,7 +32,7 @@
 </template>
 
 <script>
-import { searchSourceBooks } from '@/api/bookSources.mjs';
+import { listBookSources, searchSourceBooks } from '@/api/bookSources.mjs';
 
 export default {
   name: 'SourceSearch',
@@ -43,20 +44,34 @@ export default {
       errorMessage: '',
       searchResults: [],
       resultCount: null,
+      source: null,
     };
   },
   computed: {
     sourceId() {
       return this.$route.params.sourceId || '';
     },
+    sourceTitle() {
+      return this.source?.bookSourceName || this.sourceId;
+    },
   },
   mounted() {
     this.keyword = this.$route.query.keyword || '';
+    this.loadSourceMeta();
     if (this.keyword) {
       this.searchByKeyword();
     }
   },
   methods: {
+    loadSourceMeta() {
+      listBookSources()
+        .then((data) => {
+          this.source = (data.sources || []).find((item) => item.sourceId === this.sourceId) || null;
+        })
+        .catch((error) => {
+          console.error('Load source meta failed:', error);
+        });
+    },
     handleSearch() {
       const nextKeyword = this.keyword.trim();
       if (!nextKeyword || this.loading) {
@@ -101,8 +116,12 @@ export default {
         query: {
           bookKey: book.bookKey,
           bookUrl: book.bookUrl,
+          keyword: this.keyword.trim(),
         },
       });
+    },
+    goAdmin() {
+      this.$router.push({ name: 'SourceAdmin' });
     },
   },
 };
@@ -145,10 +164,19 @@ export default {
 .source-meta {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 12px;
   font-size: 13px;
   color: #777;
   margin-bottom: 18px;
+}
+
+.link-button {
+  border: none;
+  background: none;
+  color: #ff6600;
+  cursor: pointer;
+  padding: 0;
 }
 
 .novel-list {
