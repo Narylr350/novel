@@ -97,7 +97,7 @@
         <button @click="openChapterList"><i>📝</i><span>目录</span></button>
         <button @click="prevChapter" :disabled="!prevChapterItem"><i>⬅️</i><span>上章</span></button>
         <button @click="nextChapter" :disabled="!nextChapterItem"><i>➡️</i><span>下章</span></button>
-        <button @click="goBack"><i>🔙</i><span>返回</span></button>
+        <button @click="goBackBook"><i>🔙</i><span>返回</span></button>
       </div>
     </div>
 
@@ -426,9 +426,6 @@ export default {
           keyword: this.$route.query.keyword,
         },
       });
-    },
-    goBack() {
-      this.$router.back();
     },
     goHome() {
       this.$router.push({ name: 'RecommendationList' });
