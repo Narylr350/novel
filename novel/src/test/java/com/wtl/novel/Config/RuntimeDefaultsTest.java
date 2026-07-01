@@ -12,6 +12,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class RuntimeDefaultsTest {
 
     @Test
+    void applicationProfileDefaultsToDevWithoutMavenFiltering() throws Exception {
+        assertEquals("${SPRING_PROFILES_ACTIVE:dev}", loadProperties("application.properties").getProperty("spring.profiles.active"));
+    }
+
+    @Test
     void devAndProdProfilesDoNotExposeUnusedSignatureSecret() throws Exception {
         assertNull(loadProperties("application-dev.properties").getProperty("api.signature.secret"));
         assertNull(loadProperties("application-prod.properties").getProperty("api.signature.secret"));
