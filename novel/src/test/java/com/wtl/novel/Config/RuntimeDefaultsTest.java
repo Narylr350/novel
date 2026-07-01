@@ -48,6 +48,13 @@ class RuntimeDefaultsTest {
         assertEquals("${APP_DEV_LOGIN_PASSWORD:Dev123456}", dev.getProperty("app.dev-login.password"));
     }
 
+    @Test
+    void devProfileAllowsFallbackFrontendPort() throws Exception {
+        Properties dev = loadProperties("application-dev.properties");
+
+        assertEquals("${APP_CORS_ALLOWED_ORIGIN_PATTERNS:http://localhost:8080,http://localhost:8082,http://127.0.0.1:8080,http://127.0.0.1:8082}", dev.getProperty("app.cors.allowed-origin-patterns"));
+    }
+
     private Properties loadProperties(String resourceName) throws IOException {
         try (InputStream stream = getClass().getClassLoader().getResourceAsStream(resourceName)) {
             if (stream == null) {
