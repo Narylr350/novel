@@ -1,7 +1,10 @@
 package com.wtl.novel.booksource.controller;
 
 import com.wtl.novel.booksource.service.BookSourceImportService;
+import com.wtl.novel.booksource.service.BookSourceExecutionService;
 import com.wtl.novel.booksource.service.BookSourceRuleValidator;
+import com.wtl.novel.booksource.model.SourceBook;
+import com.wtl.novel.booksource.model.SourceContent;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,9 +18,11 @@ import java.util.Map;
 @RequestMapping("/api/book-sources")
 public class BookSourceController {
     private final BookSourceImportService importService;
+    private final BookSourceExecutionService executionService;
 
-    public BookSourceController(BookSourceImportService importService) {
+    public BookSourceController(BookSourceImportService importService, BookSourceExecutionService executionService) {
         this.importService = importService;
+        this.executionService = executionService;
     }
 
     @PostMapping("/import")
@@ -34,6 +39,29 @@ public class BookSourceController {
     public Map<String, Object> validate(@RequestBody SourceJsonRequest request) {
         List<BookSourceRuleValidator.RuleIssue> issues = importService.validateSourceJson(request.sourceJson());
         return Map.of("ok", true, "issues", issues);
+    }
+
+    @PostMapping("/search")
+    public BookSourceExecutionService.SourceSearchResult search(
+            @RequestBody BookSourceExecutionService.SearchRequest request) {
+        return executionService.search(request);
+    }
+
+    @PostMapping("/detail")
+    public SourceBook detail(@RequestBody BookSourceExecutionService.DetailRequest request) {
+        return executionService.detail(request);
+    }
+
+    @PostMapping("/toc")
+    public BookSourceExecutionService.SourceTocResult toc(
+            @RequestBody BookSourceExecutionService.TocRequest request) {
+        return executionService.toc(request);
+    }
+
+    @PostMapping("/content")
+    public SourceContent content(
+            @RequestBody BookSourceExecutionService.ContentRequest request) {
+        return executionService.content(request);
     }
 
     public record SourceJsonRequest(String sourceJson) {
