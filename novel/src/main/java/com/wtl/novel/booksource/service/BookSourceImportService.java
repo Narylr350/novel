@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wtl.novel.booksource.entity.BookSourceEntity;
 import com.wtl.novel.booksource.model.BookSource;
 import com.wtl.novel.booksource.repository.BookSourceRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -20,6 +21,7 @@ public class BookSourceImportService {
     private final BookSourceRuleValidator validator;
     private final ObjectMapper objectMapper;
 
+    @Autowired
     public BookSourceImportService(BookSourceRepository repository, BookSourceRuleValidator validator) {
         this(repository, validator, new ObjectMapper());
     }

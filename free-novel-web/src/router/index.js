@@ -8,6 +8,9 @@ const WebSearch = () => import(/* webpackChunkName: "FeedBack" */ '../components
 const WebFavorites = () => import(/* webpackChunkName: "FeedBack" */ '../components/WebFavorites.vue')
 const ChapterDetail = () => import(/* webpackChunkName: "FeedBack" */ '../components/ChapterDetail.vue')
 const NovelDetail = () => import(/* webpackChunkName: "FeedBack" */ '../components/NovelDetail.vue')
+const SourceSearch = () => import(/* webpackChunkName: "FeedBack" */ '../components/SourceSearch.vue')
+const SourceBookDetail = () => import(/* webpackChunkName: "FeedBack" */ '../components/SourceBookDetail.vue')
+const SourceChapterDetail = () => import(/* webpackChunkName: "FeedBack" */ '../components/SourceChapterDetail.vue')
 const UserDetail = () => import(/* webpackChunkName: "FeedBack" */ '../components/UserDetail.vue')
 const WebLogin = () => import(/* webpackChunkName: "WebLogin" */ '../components/WebLogin.vue')
 const RecommendationList = () => import(/* webpackChunkName: "FeedBack" */ '../components/RecommendationList.vue')
@@ -98,6 +101,24 @@ const routes = [
         name: 'WebSearch',
         component: WebSearch,
         meta: { hideSearch: true }
+    },
+    {
+        path: '/source/:sourceId/search',
+        name: 'SourceSearch',
+        component: SourceSearch,
+        meta: { hideSearch: true }
+    },
+    {
+        path: '/source/:sourceId/book',
+        name: 'SourceBookDetail',
+        component: SourceBookDetail,
+        meta: { hideSearch: true }
+    },
+    {
+        path: '/source/:sourceId/chapter',
+        name: 'SourceChapterDetail',
+        component: SourceChapterDetail,
+        meta: { hideApp: true, hideSearch: true }
     },
     {
         path: '/uploadNovelDetail',

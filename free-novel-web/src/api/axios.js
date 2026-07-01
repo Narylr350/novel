@@ -68,6 +68,12 @@ export function getTitleText2() {
     }
 }
 
+export function shouldResetAuthorizationForAuthRequest(url) {
+    if (!url || !url.includes('/api/auth/')) {
+        return false;
+    }
+    return !url.includes('/api/auth/isLogin') && !url.includes('/api/auth/app-mode');
+}
 
 service.interceptors.request.use((config) => {
     const titleText = getTitleText();
@@ -78,7 +84,7 @@ service.interceptors.request.use((config) => {
         showError("system error");
         return Promise.reject(new Error('system error'));
     }
-    if (config.url.includes('/api/auth/') && !config.url.includes('/api/auth/isLogin')) {
+    if (shouldResetAuthorizationForAuthRequest(config.url)) {
         localStorage.removeItem('Authorization');
     }
     const token = localStorage.getItem('Authorization');
