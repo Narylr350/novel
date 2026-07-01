@@ -36,6 +36,16 @@ class RuntimeDefaultsTest {
         assertEquals("${TASK_NOVELPIA_CRAWLER_ENABLED:false}", prod.getProperty("task.novelpia.crawler.enabled"));
         assertEquals("${TASK_UPDATE_NOVEL_FROM_FILE_ENABLED:false}", prod.getProperty("task.update.novel.from.file.enabled"));
         assertEquals("${APP_UI_MODE:reader}", prod.getProperty("app.ui.mode"));
+        assertEquals("${APP_DEV_LOGIN_ENABLED:false}", prod.getProperty("app.dev-login.enabled"));
+    }
+
+    @Test
+    void devProfileProvidesLocalFastLoginOnly() throws Exception {
+        Properties dev = loadProperties("application-dev.properties");
+
+        assertEquals("${APP_DEV_LOGIN_ENABLED:true}", dev.getProperty("app.dev-login.enabled"));
+        assertEquals("${APP_DEV_LOGIN_EMAIL:dev@novel.local}", dev.getProperty("app.dev-login.email"));
+        assertEquals("${APP_DEV_LOGIN_PASSWORD:Dev123456}", dev.getProperty("app.dev-login.password"));
     }
 
     private Properties loadProperties(String resourceName) throws IOException {

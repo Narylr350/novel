@@ -49,6 +49,15 @@ public class DatabaseInitializer implements CommandLineRunner {
     @Value("${app.ui.mode:reader}")
     private String appUiMode;
 
+    @Value("${app.dev-login.enabled:false}")
+    private boolean devLoginEnabled;
+
+    @Value("${app.dev-login.email:dev@novel.local}")
+    private String devLoginEmail;
+
+    @Value("${app.dev-login.password:Dev123456}")
+    private String devLoginPassword;
+
     /**
      * 构造函数注入数据源
      * 
@@ -79,6 +88,9 @@ public class DatabaseInitializer implements CommandLineRunner {
 
         // 创建默认管理员用户
         createDefaultAdminUser();
+
+        // 开发环境固定登录账号，便于本地维护已有数据库
+        ensureDevelopmentLoginUser();
 
         log.info("数据库初始化检查完成");
     }
@@ -420,6 +432,94 @@ public class DatabaseInitializer implements CommandLineRunner {
 
         } catch (SQLException e) {
             log.error("创建默认用户失败: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 开发环境固定登录账号。
+     */
+    private void ensureDevelopmentLoginUser() {
+        if (!devLoginEnabled) {
+            return;
+        }
+        if (!CustomPasswordEncoder.isValid(devLoginPassword)) {
+            throw new IllegalStateException("开发登录密码不符合复杂度要求: " + devLoginEmail);
+        }
+
+        try (Connection conn = primaryDataSource.getConnection()) {
+            CustomPasswordEncoder encoder = new CustomPasswordEncoder();
+            String encodedPassword = encoder.encode(devLoginPassword);
+            Long userId = findUserIdByEmail(conn, devLoginEmail);
+
+            if (userId == null) {
+                userId = createUser(conn, devLoginEmail, encodedPassword, 10000L, true);
+            } else {
+                updateUserPassword(conn, userId, encodedPassword);
+            }
+
+            if (!userHasInvitationCode(conn, userId)) {
+                String inviteCode = generateInvitationCode();
+                createAndBindInvitationCode(conn, userId, inviteCode, devLoginEmail);
+                updateUserInvitationCode(conn, userId, inviteCode);
+            }
+
+            log.info("开发快速登录账号: {} / {}", devLoginEmail, devLoginPassword);
+        } catch (SQLException e) {
+            log.error("初始化开发快速登录账号失败: {}", e.getMessage(), e);
+            throw new DatabaseInitializationException("初始化开发快速登录账号失败", e);
+        }
+    }
+
+    private Long findUserIdByEmail(Connection conn, String email) throws SQLException {
+        String sql = "SELECT id FROM user WHERE email = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, email);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+                return null;
+            }
+        }
+    }
+
+    private Long createUser(Connection conn, String email, String encodedPassword, Long point, boolean upload) throws SQLException {
+        String sql = """
+                INSERT INTO user (email, password, point, upload, hide_read_books)
+                VALUES (?, ?, ?, ?, 0)
+                """;
+        try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            pstmt.setString(1, email);
+            pstmt.setString(2, encodedPassword);
+            pstmt.setLong(3, point);
+            pstmt.setBoolean(4, upload);
+            pstmt.executeUpdate();
+
+            try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+                throw new SQLException("创建用户失败,无法获取用户ID");
+            }
+        }
+    }
+
+    private void updateUserPassword(Connection conn, Long userId, String encodedPassword) throws SQLException {
+        String sql = "UPDATE user SET password = ?, upload = 1 WHERE id = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, encodedPassword);
+            pstmt.setLong(2, userId);
+            pstmt.executeUpdate();
+        }
+    }
+
+    private boolean userHasInvitationCode(Connection conn, Long userId) throws SQLException {
+        String sql = "SELECT invitation_code_id FROM user WHERE id = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, userId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next() && rs.getObject(1) != null;
+            }
         }
     }
 
