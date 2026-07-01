@@ -168,6 +168,7 @@ export default {
           tocUrl: this.tocUrl,
           chapterKey: chapter.chapterKey,
           chapterUrl: chapter.chapterUrl,
+          chapterTitle: chapter.title,
           keyword: this.$route.query.keyword,
         },
       });
