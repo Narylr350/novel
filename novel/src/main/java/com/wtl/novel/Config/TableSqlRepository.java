@@ -306,6 +306,27 @@ public class TableSqlRepository {
             AUTO_INCREMENT=1
             """);
 
+        TABLE_SQL_MAP.put("book_source", """
+            CREATE TABLE `book_source` (
+                `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+                `source_id` VARCHAR(64) NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
+                `book_source_url` VARCHAR(1024) NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
+                `book_source_name` VARCHAR(255) NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
+                `book_source_group` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8mb4_0900_ai_ci',
+                `enabled` TINYINT(1) NOT NULL DEFAULT '1',
+                `raw_json` LONGTEXT NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
+                `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+                `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+                PRIMARY KEY (`id`) USING BTREE,
+                UNIQUE INDEX `uk_book_source_source_id` (`source_id`) USING BTREE,
+                INDEX `idx_book_source_url` (`book_source_url`(255)) USING BTREE
+            )
+            COLLATE='utf8mb4_0900_ai_ci'
+            ENGINE=InnoDB
+            ROW_FORMAT=DYNAMIC
+            AUTO_INCREMENT=1
+            """);
+
         addRemainingTables();
     }
 

@@ -34,7 +34,7 @@ public class DatabaseInitializer implements CommandLineRunner {
     private static final List<String> READER_REQUIRED_TABLES = List.of(
             "chapter", "chapter_comment", "comment", "credential", "dictionary",
             "favorites", "favorite_groups", "invitation_code", "notes", "novel",
-            "novel_chapter", "novel_tag", "reading_record", "tag", "user");
+            "novel_chapter", "novel_tag", "book_source", "reading_record", "tag", "user");
     private static final List<String> MAINTAINER_REQUIRED_TABLES = List.of(
             "chapter_error_execute", "chapter_execute", "chapter_image_links",
             "chapter_sync", "chapter_updates", "message", "novel_download_limit",

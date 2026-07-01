@@ -22,7 +22,7 @@ import java.util.Map;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        basePackages = "com.wtl.novel.repository",
+        basePackages = {"com.wtl.novel.repository", "com.wtl.novel.booksource.repository"},
         entityManagerFactoryRef = "primaryEntityManagerFactory",
         transactionManagerRef = "primaryTransactionManager")
 public class PrimaryJpaConfig {
@@ -40,7 +40,7 @@ public class PrimaryJpaConfig {
             EntityManagerFactoryBuilder builder) {
         return builder
                 .dataSource(primaryDataSource())
-                .packages("com.wtl.novel.entity")
+                .packages("com.wtl.novel.entity", "com.wtl.novel.booksource.entity")
                 .persistenceUnit("primaryPU")
                 .properties(jpaProperties())
                 .build();

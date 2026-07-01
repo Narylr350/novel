@@ -17,6 +17,7 @@ class DatabaseInitializerModeScopeTest {
 
         assertTrue(readerTables.contains("novel"));
         assertTrue(readerTables.contains("chapter"));
+        assertTrue(readerTables.contains("book_source"));
         assertTrue(readerTables.contains("reading_record"));
         assertFalse(readerTables.contains("terminology"));
         assertFalse(readerTables.contains("chapter_execute"));
@@ -29,9 +30,20 @@ class DatabaseInitializerModeScopeTest {
 
         assertTrue(maintainerTables.contains("novel"));
         assertTrue(maintainerTables.contains("chapter"));
+        assertTrue(maintainerTables.contains("book_source"));
         assertTrue(maintainerTables.contains("terminology"));
         assertTrue(maintainerTables.contains("chapter_execute"));
         assertTrue(maintainerTables.contains("platform_api_key"));
+    }
+
+    @Test
+    void bookSourceTableSqlIsAvailableForRuntimeInitialization() {
+        String bookSourceSql = TableSqlRepository.getCreateTableSql("book_source");
+
+        assertTrue(bookSourceSql.contains("CREATE TABLE `book_source`"));
+        assertTrue(bookSourceSql.contains("`source_id`"));
+        assertTrue(bookSourceSql.contains("`book_source_url`"));
+        assertTrue(bookSourceSql.contains("`raw_json`"));
     }
 
     @Test
