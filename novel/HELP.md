@@ -1,6 +1,6 @@
 # Backend Maintenance Notes
 
-This file is a short compatibility note for the `novel` backend. Treat the root `README.md`, `.ai/PROJECT.md`, and `docs/engineering/runtime-operations.md` as the broader runtime guidance.
+This file is a short compatibility note for the `novel` backend. Treat the root `README.md` and `.ai/PROJECT.md` as the broader runtime guidance.
 
 ## Current Baseline
 
@@ -23,7 +23,6 @@ The `-Pdev` Maven profile is intentional because `application.properties` is fil
 
 - Single database example: `novel/.env.example`
 - Dual database example: `novel/.env.dual.example`
-- Compose/shared example: root `.env.example`
 
 Current profile and CORS variables use Spring Boot names:
 
@@ -44,4 +43,4 @@ APP_CORS_ALLOWED_ORIGIN_PATTERNS=http://localhost:8080
 
 - Java 17, Node 22, and MySQL 8 notes are obsolete for the current repository baseline.
 - Historical proxy snippets and SQL package notes are not the canonical startup path.
-- Keep high-side-effect crawler, scheduler, translation, upload, sitemap, and file-import changes aligned with current Spring properties and compose files.
+- Keep high-side-effect crawler, scheduler, translation, upload, sitemap, and file-import changes aligned with current Spring properties and environment examples.

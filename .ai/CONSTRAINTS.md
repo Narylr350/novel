@@ -8,7 +8,7 @@
 - 书源执行涉及外部 I/O、JS、cookie、登录态和反爬，必须先小闭环验证，不把猜测写成已完成。
 - 桌面浏览器渲染必须有超时、并发限制、页面/上下文释放、内网和本地地址访问防护，并在错误归因中记录实际 renderer。
 - cookie 涉及凭据存储，按书源/域名隔离，不混用，不写入日志。
-- 配置或部署改动必须同时检查源码配置、环境示例、Dockerfile、Compose 和相关说明，避免只改一处。
+- 配置或部署改动必须同时检查源码配置、环境示例和相关说明，避免只改一处。
 - 前端改动优先复用现有组件和视觉风格。
 - Node 维护基线优先使用 Node 20 LTS；Node 24 的依赖警告先按环境风险处理，不直接判断为源码损坏。
 - 不引入新框架，除非用户明确批准。
@@ -20,16 +20,16 @@
 
 ## Git Hygiene
 
-- `novel/target/`、`free-novel-web/node_modules/`、`free-novel-web/dist/`、`app/logs/`、`app/tmp/`、`app/file/`、`sql/` 不进 Git（已在 .gitignore）。
-- `novel/app/` 下是后端误生成的 runtime 日志（`spring.log`），不应提交；如保留该路径应加入 .gitignore 或清理。
+- `novel/target/`、`free-novel-web/node_modules/`、`free-novel-web/dist/`、`app/logs/`、`app/tmp/`、`app/file/`、`novel/app/`、`sql/` 不进 Git（已在 .gitignore）。
 - `.opencode/`、`.idea/`、`.vscode/`、`docs/`、`AGENTS.md`、`CLAUDE.md`、`AI_CONTEXT.md` 不进 Git（已在 .gitignore）。
 - `.ai/` 下基线文件（PROJECT.md / TECH.md / CONSTRAINTS.md / VALIDATION.md）进 Git；`.ai/` 下本地缓存、运行记录、草稿、`*.local.*` 不进 Git。
+- Docker/Compose 文件已从仓库移除，不再维护；不恢复 Dockerfile / docker-compose*.yml。
 
 ## Workflow Authority
 
 - 无旧 AI 工作流文件竞争（项目根无 AGENTS.md / CLAUDE.md / AI_CONTEXT.md）。
 - 现有 `.ai/PROJECT.md`（原单文件格式）已被本次 re-init 拆分为 4 文件基线替换。
-- README 引用的 `docs/context/*.md` Canonical Docs 在文件系统上不存在，属 README 失准；不以 docs/ 为事实源。
+- README 和 HELP.md 的失准引用（docs/ Canonical Docs、Docker Compose 章节）已在本轮维护修复；以 README 为启动和环境指导事实源。
 - `.ai/book-source-module-api-design.md` 是上一阶段模块设计参考，保留作历史参考，不作本阶段事实源；本阶段新设计决策写入 `.ai/TECH.md` 或 commit message。
 - 不恢复旧 docs / task / index 重流程。
 

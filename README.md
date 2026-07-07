@@ -81,28 +81,6 @@ npm run serve
 - `prod` 默认偏读者界面
 - 如需覆盖，可设置 `APP_UI_MODE=reader|maintainer`
 
-### Docker Compose
-
-仓库根目录没有通用的 `docker-compose.yml`。请显式使用下面四个文件之一：
-
-| 文件 | 用途 |
-|------|------|
-| `docker-compose.local-single.yml` | 本地单数据库 |
-| `docker-compose.local-dual.yml` | 本地双数据库 |
-| `docker-compose.external-single.yml` | 外部单数据库 |
-| `docker-compose.external-dual.yml` | 外部双数据库 |
-
-本地单数据库示例：
-
-```powershell
-docker compose -f docker-compose.local-single.yml up --build -d
-```
-
-说明：
-- `docker-compose.local-single.yml` 和 `docker-compose.local-dual.yml` 使用仓库根目录的 `Dockerfile` 构建当前源码
-- `docker-compose.external-single.yml` 和 `docker-compose.external-dual.yml` 仍保留为镜像部署路径
-- Compose 运行时继续挂载仓库下的 `app/` 目录作为运行目录
-
 ## 构建命令
 
 前端构建：
@@ -120,14 +98,15 @@ cd novel
 mvn clean package -DskipTests -Pdev
 ```
 
-根目录 `Dockerfile` 会先构建 Vue CLI 前端，再把产物打进 Spring Boot 应用静态资源目录。
+前端 build 产物放进 Spring Boot 应用静态资源目录后由后端统一服务。
 
 ## 维护说明
 
 - 这个仓库默认服务的是“功能推进 + 源码维护”，不是“发布包生产线”
 - `release/`、根目录中文 `.cmd` 包装脚本、源码包分发树等历史发布面不再是当前仓库的主入口
+- Docker/Compose 路径已移除，不再维护；部署统一走源码构建或外部镜像
 - Node 24 目前仍可能构建成功，但依赖会报 engine warning；维护时优先使用 Node 20 LTS
-- `HELP.md` 只保留简短维护备注，长期说明以 `README.md` 和 `docs/` 为准
+- `HELP.md` 只保留简短维护备注，长期说明以 `README.md` 为准
 
 ## 仓库结构
 
@@ -136,15 +115,5 @@ FreeNovel/
 ├── novel/                     # Spring Boot backend
 ├── free-novel-web/            # Vue 3 + Vue CLI frontend
 ├── app/                       # runtime logs, temp files, uploaded files
-├── docs/                      # maintenance context and task records
-├── Dockerfile                 # local image build path
-└── docker-compose*.yml        # supported compose entrypoints
+└── .ai/                       # 项目基线文档（PROJECT/TECH/CONSTRAINTS/VALIDATION）
 ```
-
-## Canonical Docs
-
-- 项目概览：`docs/context/project-overview.md`
-- 当前路线：`docs/context/development-roadmap.md`
-- 技术基线：`docs/context/tech-stack.md`
-- 数据库说明：`docs/engineering/database.md`
-- 运行说明：`docs/engineering/runtime-operations.md`

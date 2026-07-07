@@ -8,7 +8,7 @@
 - 前端：`free-novel-web`，Vue 3，Vue Router 4，Vue CLI 5，Element Plus，Axios，CryptoJS，Tailwind/PostCSS。
 - 数据库：MariaDB/MySQL 风格，保留单数据库和双数据库运行模式。
 - 本地默认端口：Web `8080`，Backend `8081`。
-- Docker/Compose：继续使用仓库已有 compose 文件，不新增运行入口，除非修复配置时确实需要并同步说明。
+- Docker/Compose 路径已移除，不再维护；部署统一走源码构建或外部镜像。
 
 ## 已确认的书源接入方向（本阶段扩展）
 
