@@ -5,6 +5,7 @@
 - API 改动必须同时检查后端 controller/interceptor 和前端 Axios/signature 调用。
 - 大多数 `/api/**` 端点受自定义签名/鉴权影响，书源 API 也要明确哪些公开、哪些需要维护者权限。
 - scheduler、crawler、translation、upload、sitemap、file-import 属于高副作用区域，改动必须谨慎验证。
+- 韩国小说站爬虫（novelpia 等）不再维护，已由 fork 站 novalpie.cc 接管；不在此方向做新功能或修复。
 - 书源执行涉及外部 I/O、JS、cookie、登录态和反爬，必须先小闭环验证，不把猜测写成已完成。
 - 桌面浏览器渲染必须有超时、并发限制、页面/上下文释放、内网和本地地址访问防护，并在错误归因中记录实际 renderer。
 - cookie 涉及凭据存储，按书源/域名隔离，不混用，不写入日志。

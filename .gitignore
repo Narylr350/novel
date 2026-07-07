@@ -30,6 +30,7 @@ docs/
 .claude/
 .opencode/
 .omo/
+.playwright-mcp/
 .cursor/
 .windsurf/
 .superpowers/
