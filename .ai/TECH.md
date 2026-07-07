@@ -89,6 +89,27 @@ Maven 坐标：
 - `RuleSourceRenderer` 单 bean 注入需改为按 mode 路由（`Map<String, RuleSourceRenderer>` 或工厂）。
 - `RenderedPage.rendererMode()` 填 `"desktop_browser"`，不冒充 `"http"` 或 Legado App 实测。
 
+## novalpie.cc 书源参考（Seed Task 5 验证目标）
+
+已有现成书源规则（来源：`D:\Narylr\阅读书源生成技能\validator\examples\sources\novalpie-com.json`）：
+
+- **搜索**：`/api/search/index.php?q={{key}}&page={{page}}&limit=20&scope=all&match_type=fuzzy&sort_by=relevance&sort_order=desc&adult_filter=all` — JSON API，http 模式
+- **详情**：`/api/novel/detail.php?id={$.id}` — JSON API，http 模式
+- **目录**：`/api/chapter/list.php?novel_id={$.id}` — JSON API，http 模式
+- **正文**：`/reader?novel={novel_id}&chapter={chapter_id}` + `webView:true` — **需要 desktop_browser renderer**
+- **登录**：`https://novalpie.cc/login`，cookie 含 `auth_token`，`enabledCookieJar: true`
+- **正文提取 webJs**：在 `/reader` 页面等待 `#chapter-{chapterId}` 或 `.chapter-item` 元素出现，提取 `div:not([class])` 的 innerHTML（正文容器）
+- **chapterUrl 格式**：`{{var m = baseUrl.match(/novel_id=(\d+)/); '/reader?novel=' + m[1] + '&chapter=' + result.id}},{"\"webView\":true}"`
+
+这确认了 renderer 路由的实际场景：搜索/详情/目录走 http，正文走 desktop_browser。正文 webJs 需要在 `page.evaluate()` 中执行，等待特定 DOM 元素出现后提取内容。
+
+登录态验证流程（来源：`novalpie-login.json`）：
+1. 匿名跑搜索→详情→目录→正文边界（正文预期停在登录态）
+2. 获取登录 cookie（`auth_token`）
+3. 注入 cookie 到 BrowserContext
+4. 再跑正文，预期取到实际内容
+5. 检查正文不为空、不是登录墙、不串章
+
 ## 暂不采用
 
 - 独立 sidecar 服务作为长期主方案。
