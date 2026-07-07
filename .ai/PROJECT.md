@@ -77,6 +77,6 @@ FreeNovel 是面向韩轻小说阅读、采集、翻译和维护运营的平台�
 2. 在 `booksource/render` 下实现 `DesktopBrowserRuleSourceRenderer` 接口与最小实现（基于 Seed Task 1 结论），区分 desktop/mobile profile，标注实际 renderer。
 3. 在 `booksource` 下实现 cookie 基础支持：`BookSourceCookieEntity` / `BookSourceCookieRepository` / `BookSourceCookieService`，支持按书源/域名持久化和查询 cookie。
 4. 接通 desktop_browser renderer 到书源执行链路（搜索 -> 详情 -> 目录 -> 正文），前端复用现有阅读页面消费 webView:true 书源内容。
-5. 端到端验证：导入一个 webView:true 真实书源 -> 搜索 -> 详情 -> 目录 -> 正文实际可读；cookie 支持验证；渲染结论区分 `http` / `desktop_browser` / `needs_app_review`。
+5. 端到端验证：以 novalpie.cc 为真实书源验证目标（用户熟悉、SPA 站需 JS 渲染、技术栈简单），导入一个 webView:true 书源 -> 搜索 -> 详情 -> 目录 -> 正文实际可读；cookie 支持验证；渲染结论区分 `http` / `desktop_browser` / `needs_app_review`。
 
 后续 Next 写在 commit message，不回写到本文件。
